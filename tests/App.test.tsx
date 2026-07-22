@@ -3,18 +3,14 @@ import { render } from "@testing-library/react-native";
 import App from "../App";
 
 describe("App", () => {
-  it("renders the title", () => {
+  it("renders the products screen", () => {
     const { getByText } = render(<App />);
-    expect(getByText("Meu App PWA")).toBeTruthy();
+    expect(getByText("Products")).toBeTruthy();
   });
 
-  it("renders the subtitle", () => {
+  it("renders the tab bar", () => {
     const { getByText } = render(<App />);
-    expect(getByText("React Native + Expo + TypeScript + Tailwind CSS")).toBeTruthy();
-  });
-
-  it("renders the button", () => {
-    const { getByText } = render(<App />);
-    expect(getByText("Clique Aqui")).toBeTruthy();
+    expect(getByText("Products")).toBeTruthy();
+    expect(getByText("🛒 Cart")).toBeTruthy();
   });
 });
