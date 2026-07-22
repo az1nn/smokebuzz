@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import { ScrollView, View, Text, Image, Animated, Dimensions } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { ScrollView, View, Text, Image, Animated, Dimensions, Platform } from "react-native";
 import RopeDivider from "../components/RopeDivider";
 import SectionHeading from "../components/SectionHeading";
 import BrassButton from "../components/BrassButton";
@@ -29,46 +29,55 @@ export default function HomeScreen({
 }) {
   const floatAnim = useRef(new Animated.Value(0)).current;
   const wisp1Anim = useRef(new Animated.Value(0)).current;
-  const wisp2Anim = useRef(new Animated.Value(0)).current;
-  const wisp3Anim = useRef(new Animated.Value(0)).current;
+  const wisp2Anim = useRef(new Animated.Value(0.5)).current;
+  const wisp3Anim = useRef(new Animated.Value(0.5)).current;
+  const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
+    if (reducedMotion) return;
+
     const float = Animated.loop(
       Animated.sequence([
         Animated.timing(floatAnim, {
           toValue: -14,
           duration: 3000,
-          useNativeDriver: true,
+          useNativeDriver: Platform.OS !== "web",
         }),
         Animated.timing(floatAnim, {
           toValue: 0,
           duration: 3000,
-          useNativeDriver: true,
+          useNativeDriver: Platform.OS !== "web",
         }),
       ])
     );
     float.start();
 
-    const drift = (anim: Animated.Value, duration: number, delay: number) =>
-      Animated.loop(
+    const drift = (anim: Animated.Value, duration: number) => {
+      const half = (duration * 1000) / 2;
+      return Animated.loop(
         Animated.sequence([
-          Animated.delay(delay * 1000),
+          Animated.timing(anim, {
+            toValue: 0.5,
+            duration: half,
+            useNativeDriver: Platform.OS !== "web",
+          }),
           Animated.timing(anim, {
             toValue: 1,
-            duration: duration * 1000,
-            useNativeDriver: true,
+            duration: half,
+            useNativeDriver: Platform.OS !== "web",
           }),
           Animated.timing(anim, {
             toValue: 0,
             duration: 0,
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== "web",
           }),
         ])
       );
+    };
 
-    drift(wisp1Anim, 14, 0).start();
-    drift(wisp2Anim, 19, -4).start();
-    drift(wisp3Anim, 23, -9).start();
+    drift(wisp1Anim, 14).start();
+    drift(wisp2Anim, 19).start();
+    drift(wisp3Anim, 23).start();
 
     return () => {
       float.stop();
@@ -76,37 +85,59 @@ export default function HomeScreen({
       wisp2Anim.stopAnimation();
       wisp3Anim.stopAnimation();
     };
-  }, [floatAnim, wisp1Anim, wisp2Anim, wisp3Anim]);
+  }, [floatAnim, wisp1Anim, wisp2Anim, wisp3Anim, reducedMotion]);
 
-  const wisp1Style = {
-    opacity: wisp1Anim.interpolate({
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  const wispInterpolate = (anim: Animated.Value) => ({
+    opacity: anim.interpolate({
       inputRange: [0, 0.5, 1],
       outputRange: [0.35, 0.55, 0],
     }),
     transform: [
       {
-        translateX: wisp1Anim.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0, 20],
+        translateX: anim.interpolate({
+          inputRange: [0, 0.5, 1],
+          outputRange: [0, 20, -10],
         }),
       },
       {
-        translateY: wisp1Anim.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0, -140],
+        translateY: anim.interpolate({
+          inputRange: [0, 0.5, 1],
+          outputRange: [0, -60, -140],
         }),
       },
       {
-        scale: wisp1Anim.interpolate({
+        scale: anim.interpolate({
           inputRange: [0, 0.5, 1],
           outputRange: [1, 1.15, 0.9],
         }),
       },
     ],
-  };
+  });
 
   const { width } = Dimensions.get("window");
   const isMobile = width < 900;
+  const sectionPad = width <= 560 ? "py-[72px]" : "py-[104px]";
+  const wisp1Style = {
+    ...wispInterpolate(wisp1Anim),
+    opacity: 0.5,
+  };
+  const wisp2Style = {
+    ...wispInterpolate(wisp2Anim),
+    opacity: 0.5,
+  };
+  const wisp3Style = {
+    ...wispInterpolate(wisp3Anim),
+    opacity: 0.5,
+  };
 
   return (
     <ScrollView className="flex-1 bg-noir">
@@ -156,32 +187,7 @@ export default function HomeScreen({
               borderRadius: 90,
               backgroundColor: "#c9a24b",
             },
-            {
-              opacity: wisp2Anim.interpolate({
-                inputRange: [0, 0.5, 1],
-                outputRange: [0.35, 0.55, 0],
-              }),
-              transform: [
-                {
-                  translateX: wisp2Anim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, 20],
-                  }),
-                },
-                {
-                  translateY: wisp2Anim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, -60],
-                  }),
-                },
-                {
-                  scale: wisp2Anim.interpolate({
-                    inputRange: [0, 0.5, 1],
-                    outputRange: [1, 1.15, 0.9],
-                  }),
-                },
-              ],
-            },
+            wisp2Style,
           ]}
         />
         <Animated.View
@@ -196,36 +202,9 @@ export default function HomeScreen({
               borderRadius: 60,
               backgroundColor: "#d9622b",
             },
-            {
-              opacity: wisp3Anim.interpolate({
-                inputRange: [0, 0.5, 1],
-                outputRange: [0.35, 0.55, 0],
-              }),
-              transform: [
-                {
-                  translateX: wisp3Anim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, 20],
-                  }),
-                },
-                {
-                  translateY: wisp3Anim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, -60],
-                  }),
-                },
-                {
-                  scale: wisp3Anim.interpolate({
-                    inputRange: [0, 0.5, 1],
-                    outputRange: [1, 1.15, 0.9],
-                  }),
-                },
-              ],
-            },
+            wisp3Style,
           ]}
         />
-
-        {/* Content */}
         <View
           className={`w-full ${isMobile ? "items-center" : "flex-row items-center gap-10"}`}
           style={{ maxWidth: 1180 }}
@@ -234,16 +213,16 @@ export default function HomeScreen({
             <Text className="text-brass uppercase text-xs tracking-[3px] mb-[18px] font-jost">
               Tabacaria · Desde 2026 · Rio de Janeiro
             </Text>
-            <Text className="text-brass-light font-rye text-5xl text-center mb-[18px]">
+            <Text className={`text-brass-light font-rye ${isMobile ? "text-5xl text-center" : "text-7xl"} mb-[18px]`}>
               Bem-vindo à{"\n"}SmokeBuzz
             </Text>
             <Text
-              className="text-cream-dim font-cormorant text-[21.6px] text-center leading-[1.5] mb-[34px]"
+              className={`text-cream-dim font-cormorant text-[21.6px] ${isMobile ? "text-center" : ""} leading-[1.5] mb-[34px]`}
               style={{ maxWidth: "46ch" as any }}
             >
               Charutos, tabacos e acessórios selecionados para quem aprecia cada baforada. Atendemos toda a cidade do Rio de Janeiro, com pedidos direto pelo Instagram.
             </Text>
-            <View className="flex-row gap-4 flex-wrap justify-center">
+            <View className={`flex-row gap-4 flex-wrap ${isMobile ? "justify-center" : ""}`}>
               <BrassButton label="Ver produtos" onPress={onNavigateProducts} />
               <BrassButton
                 label="Pedir pelo Instagram"
@@ -255,12 +234,22 @@ export default function HomeScreen({
           <View className="items-center justify-center" style={{ width: isMobile ? 160 : 360 }}>
             <Animated.Image
               source={require("../../assets/logosmokebuzz-transparent.png")}
-              style={{
-                width: isMobile ? 160 : 360,
-                height: isMobile ? 160 : 360,
-                borderRadius: isMobile ? 80 : 180,
-                transform: [{ translateY: floatAnim }],
-              }}
+              style={[
+                {
+                  width: isMobile ? 160 : 360,
+                  height: isMobile ? 160 : 360,
+                  transform: [{ translateY: floatAnim }],
+                },
+                Platform.OS === "web"
+                  ? ({ filter: "drop-shadow(0 25px 45px rgba(0,0,0,0.55))" } as any)
+                  : {
+                      shadowColor: "#000",
+                      shadowOffset: { width: 0, height: 25 },
+                      shadowOpacity: 0.55,
+                      shadowRadius: 45,
+                      elevation: 25,
+                    },
+              ]}
               resizeMode="contain"
             />
           </View>
@@ -270,12 +259,11 @@ export default function HomeScreen({
       <RopeDivider />
 
       {/* SOBRE */}
-      <View className="bg-espresso py-[104px] px-7">
+      <View className={`bg-espresso ${sectionPad} px-7`}>
         <View className="max-w-[1180px] mx-auto flex-row gap-[60px] items-center flex-wrap">
           <Image
             source={require("../../assets/logosmokebuzz-transparent.png")}
-            className="w-[200px] h-[200px] rounded-lg border border-line"
-            style={{ maxWidth: "100%" }}
+            className="w-full max-w-[280px] rounded-[6px] border border-line"
           />
           <View className="flex-1 min-w-[250px]">
             <SectionHeading
@@ -307,10 +295,10 @@ export default function HomeScreen({
         </View>
       </View>
 
-      <RopeDivider thin />
+      <RopeDivider />
 
       {/* DIFERENCIAIS */}
-      <View className="bg-espresso py-[104px] px-7">
+      <View className={`bg-espresso ${sectionPad} px-7`}>
         <View className="max-w-[1180px] mx-auto">
           <SectionHeading
             eyebrow="Por que a SmokeBuzz"
@@ -334,18 +322,20 @@ export default function HomeScreen({
         </View>
       </View>
 
-      <RopeDivider thin />
+      <RopeDivider />
 
       {/* LOCALIZAÇÃO */}
-      <View className="py-[104px] px-7">
+      <View className={`${sectionPad} px-7`}>
         <View className="max-w-[1180px] mx-auto flex-row gap-[50px] flex-wrap" style={{ alignItems: "flex-start" }}>
           <View className="flex-1 min-w-[280px]">
-            <SectionHeading
-              eyebrow="Onde entregamos"
-              title="Área de atendimento"
-            />
+            <View style={{ marginBottom: 30 }}>
+              <SectionHeading
+                eyebrow="Onde entregamos"
+                title="Área de atendimento"
+              />
+            </View>
             <View className="mb-[30px]">
-              <Text className="text-brass-light font-rye text-[16.8px] mb-[10px]">
+              <Text className="text-brass-light font-rye text-[16.8px] mb-[10px] tracking-[0.4px]">
                 Cobertura
               </Text>
               <Text className="text-cream-dim font-cormorant text-[18.4px] leading-[1.6]">
@@ -354,7 +344,7 @@ export default function HomeScreen({
               </Text>
             </View>
             <View className="mb-[30px]">
-              <Text className="text-brass-light font-rye text-[16.8px] mb-[10px]">
+              <Text className="text-brass-light font-rye text-[16.8px] mb-[10px] tracking-[0.4px]">
                 Horário de atendimento
               </Text>
               <Text className="text-cream-dim font-cormorant text-[18.4px] leading-[1.6]">
@@ -367,7 +357,7 @@ export default function HomeScreen({
               </Text>
             </View>
             <View className="mb-[30px]">
-              <Text className="text-brass-light font-rye text-[16.8px] mb-[10px]">
+              <Text className="text-brass-light font-rye text-[16.8px] mb-[10px] tracking-[0.4px]">
                 Contato
               </Text>
               <Text className="text-cream-dim font-cormorant text-[18.4px] leading-[1.6]">
@@ -390,7 +380,7 @@ export default function HomeScreen({
       <RopeDivider />
 
       {/* CONTATO */}
-      <View className="bg-espresso py-[104px] px-7 items-center">
+      <View className={`bg-espresso ${sectionPad} px-7 items-center`}>
         <View className="max-w-[1180px] mx-auto items-center">
           <View className="max-w-[600px] mb-11 items-center">
             <SectionHeading

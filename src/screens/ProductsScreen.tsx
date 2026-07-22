@@ -6,6 +6,7 @@ import { Product } from "../types";
 import SectionHeading from "../components/SectionHeading";
 import BrassButton from "../components/BrassButton";
 import CategoryCard from "../components/CategoryCard";
+import RopeDivider from "../components/RopeDivider";
 
 const altTexts: Record<string, string> = {
   "1": "Avulsa por R$ 1,00",
@@ -49,7 +50,7 @@ export default function ProductsScreen({
 
   const renderProduct = ({ item }: { item: Product }) => (
     <View className="bg-noir border border-line rounded-lg overflow-hidden m-2 flex-1 min-w-[140px]">
-      <View className="bg-white aspect-square p-4 items-center justify-center">
+      <View className="bg-white aspect-square p-[18px] items-center justify-center">
         {typeof item.image === "string" ? (
           <Text className="text-5xl">{item.image}</Text>
         ) : (
@@ -78,31 +79,35 @@ export default function ProductsScreen({
   );
 
   const renderFooter = () => (
-    <View className="px-7 py-[104px]">
-      <SectionHeading
-        eyebrow="O que você encontra aqui"
-        title="Categorias"
-        description="Uma seleção pensada para todo tipo de fumante — do iniciante ao mais exigente."
-      />
-      <View className="flex-row flex-wrap">
-        {categorias.map((cat) => (
-          <View
-            key={cat.title}
-            className={width > 900 ? "w-1/3 p-2" : "w-full p-2"}
-          >
-            <CategoryCard
-              icon={
-                <Text className="text-brass-light text-[44px]">
-                  {cat.icon}
-                </Text>
-              }
-              title={cat.title}
-              description={cat.description}
-            />
-          </View>
-        ))}
+    <>
+      <RopeDivider thin />
+      <View className="px-7 py-[104px]">
+        <SectionHeading
+          eyebrow="O que você encontra aqui"
+          title="Categorias"
+          description="Uma seleção pensada para todo tipo de fumante — do iniciante ao mais exigente."
+        />
+        <View className="flex-row flex-wrap">
+          {categorias.map((cat) => (
+            <View
+              key={cat.title}
+              className={width > 900 ? "w-1/3 p-3" : width > 560 ? "w-1/2 p-3" : "w-full p-3"}
+            >
+              <CategoryCard
+                icon={
+                    <View className="w-11 h-11 mb-5 items-center justify-center">
+                    <Text className="text-brass-light text-2xl">{cat.icon}</Text>
+                  </View>
+                }
+                title={cat.title}
+                description={cat.description}
+              />
+            </View>
+          ))}
+        </View>
       </View>
-    </View>
+      <RopeDivider thin />
+    </>
   );
 
   return (

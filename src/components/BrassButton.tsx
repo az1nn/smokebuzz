@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from "react";
-import { Pressable, Text, Animated } from "react-native";
+import { Pressable, Text, Animated, Platform } from "react-native";
 
 type Props = {
   label: string;
@@ -19,7 +19,7 @@ export default function BrassButton({
   const handlePressIn = useCallback(() => {
     Animated.spring(scaleAnim, {
       toValue: 0.97,
-      useNativeDriver: true,
+      useNativeDriver: Platform.OS !== "web",
     }).start();
   }, [scaleAnim]);
 
@@ -27,7 +27,7 @@ export default function BrassButton({
     Animated.spring(scaleAnim, {
       toValue: 1,
       friction: 5,
-      useNativeDriver: true,
+      useNativeDriver: Platform.OS !== "web",
     }).start();
   }, [scaleAnim]);
 
@@ -35,7 +35,7 @@ export default function BrassButton({
   const solid = "bg-brass";
   const ghost = "border border-brass";
   const textSolid =
-    "text-noir uppercase text-sm tracking-[0.8px] font-semibold";
+    "text-noir uppercase text-sm tracking-[0.8px]";
   const textGhost = "text-cream uppercase text-sm tracking-[0.8px]";
 
   return (
