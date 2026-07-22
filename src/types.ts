@@ -5,7 +5,7 @@ export type Product = {
   name: string;
   description: string;
   price: number;
-  image: ImageSourcePropType;
+  image: ImageSourcePropType | string;
   category: string;
 };
 
@@ -14,4 +14,4 @@ export type CartItem = {
   quantity: number;
 };
 
-export type Screen = "products" | "cart" | "checkout";
+export type Screen = "home" | "products" | "cart" | "checkout";

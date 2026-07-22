@@ -3,6 +3,7 @@ import React, { useState, useCallback } from "react";
 import { View, Text, Pressable } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { CartProvider, useCart } from "./src/context/CartContext";
+import HomeScreen from "./src/screens/HomeScreen";
 import ProductsScreen from "./src/screens/ProductsScreen";
 import CartScreen from "./src/screens/CartScreen";
 import CheckoutScreen from "./src/screens/CheckoutScreen";
@@ -17,54 +18,59 @@ function TabBar({
   onTab: (screen: Screen) => void;
   itemCount: number;
 }) {
-  const tabClass = (screen: Screen) =>
-    `flex-1 items-center py-3 ${
-      current === screen ? "border-t-2 border-sky-400" : ""
-    }`;
+  const tabs: { key: Screen; label: string }[] = [
+    { key: "home", label: "Home" },
+    { key: "products", label: "Produtos" },
+    { key: "cart", label: "Carrinho" },
+  ];
 
   return (
-    <View className="flex-row bg-slate-800 border-t border-slate-700">
-      <Pressable className={tabClass("products")} onPress={() => onTab("products")}>
-        <Text
-          className={
-            current === "products" ? "text-sky-400" : "text-slate-400"
-          }
-        >
-          🏪 Products
-        </Text>
-      </Pressable>
-      <Pressable className={tabClass("cart")} onPress={() => onTab("cart")}>
-        <View className="flex-row items-center">
-          <Text
-            className={
-              current === "cart" ? "text-sky-400" : "text-slate-400"
-            }
+    <View className="flex-row bg-espresso border-t border-line">
+      {tabs.map(({ key, label }) =>
+        key === "checkout" ? null : (
+          <Pressable
+            key={key}
+            className={`flex-1 items-center py-3 ${
+              current === key ? "border-t-2 border-brass-light" : ""
+            }`}
+            onPress={() => onTab(key)}
           >
-            🛒 Cart
-          </Text>
-          {itemCount > 0 && (
-            <View className="bg-red-500 rounded-full ml-1 px-1.5">
-              <Text className="text-white text-xs font-bold">
-                {itemCount}
+            <View className="flex-row items-center">
+              <Text
+                className={
+                  current === key ? "text-brass-light" : "text-cream-dim"
+                }
+              >
+                {label}
               </Text>
+              {key === "cart" && itemCount > 0 && (
+                <View className="bg-ember rounded-full ml-1 px-1.5">
+                  <Text className="text-white text-xs font-bold">
+                    {itemCount}
+                  </Text>
+                </View>
+              )}
             </View>
-          )}
-        </View>
-      </Pressable>
+          </Pressable>
+        )
+      )}
     </View>
   );
 }
 
 function AppInner() {
   const { itemCount } = useCart();
-  const [screen, setScreen] = useState<Screen>("products");
+  const [screen, setScreen] = useState<Screen>("home");
 
   const handleTab = useCallback((newScreen: Screen) => {
     setScreen(newScreen);
   }, []);
 
   return (
-    <View className="flex-1 bg-slate-900">
+    <View className="flex-1 bg-noir">
+      {screen === "home" && (
+        <HomeScreen onNavigateProducts={() => setScreen("products")} />
+      )}
       {screen === "products" && (
         <ProductsScreen onNavigateCart={() => setScreen("cart")} />
       )}
@@ -72,7 +78,7 @@ function AppInner() {
         <CartScreen onCheckout={() => setScreen("checkout")} />
       )}
       {screen === "checkout" && (
-        <CheckoutScreen onDone={() => setScreen("products")} />
+        <CheckoutScreen onDone={() => setScreen("home")} />
       )}
       {screen !== "checkout" && (
         <TabBar
