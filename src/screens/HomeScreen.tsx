@@ -250,7 +250,7 @@ export default function HomeScreen({
           {!isMobile && (
             <View className="items-center justify-center">
               <Animated.Image
-                source={require("../../assets/logo_smokebuzz.png")}
+                source={require("../../assets/logosmokebuzz-transparent.png")}
                 className="w-[360px] h-[360px] rounded-full"
                 style={{
                   transform: [{ translateY: floatAnim }],
@@ -269,7 +269,7 @@ export default function HomeScreen({
       <View className="bg-espresso py-[104px] px-7">
         <View className="max-w-[1180px] mx-auto flex-row gap-[60px] items-center flex-wrap">
           <Image
-            source={require("../../assets/logo_smokebuzz.png")}
+            source={require("../../assets/logosmokebuzz-transparent.png")}
             className="w-[200px] h-[200px] rounded-lg border border-line"
             style={{ maxWidth: "100%" }}
           />
@@ -412,7 +412,7 @@ export default function HomeScreen({
           <View className="flex-row justify-between items-center flex-wrap gap-5">
             <View className="flex-row items-center gap-3">
               <Image
-                source={require("../../assets/logo_smokebuzz.png")}
+                source={require("../../assets/logosmokebuzz-transparent.png")}
                 className="w-9 h-9 rounded-full"
               />
               <View>

@@ -15,7 +15,7 @@ export default function StickyHeader() {
       <View className="max-w-[1180px] mx-auto flex-row items-center justify-between">
         <View className="flex-row gap-3 items-center">
           <Image
-            source={require("../../assets/logo_smokebuzz.png")}
+            source={require("../../assets/logosmokebuzz-transparent.png")}
             className="w-11 h-11 rounded-full"
           />
           <Text className="text-cream text-lg font-rye">SmokeBuzz</Text>
