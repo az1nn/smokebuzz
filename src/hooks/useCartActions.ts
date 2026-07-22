@@ -1,10 +1,8 @@
 import { useCallback } from "react";
 import { useCart } from "../context/CartContext";
-import { useNavigation } from "./useNavigation";
 
 export function useCartActions() {
   const { updateQuantity, removeItem, clearCart } = useCart();
-  const { goToCheckout } = useNavigation();
 
   const handleUpdateQuantity = useCallback(
     (productId: string, quantity: number) => {
@@ -29,8 +27,8 @@ export function useCartActions() {
   }, [clearCart]);
 
   const handleCheckout = useCallback(() => {
-    goToCheckout();
-  }, [goToCheckout]);
+    // Navigation handled by App.tsx via callbacks
+  }, []);
 
   return {
     updateQuantity: handleUpdateQuantity,

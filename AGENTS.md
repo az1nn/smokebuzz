@@ -68,8 +68,72 @@ Do NOT combine spec commits with implementation commits. Each phase must be inde
 - **Use the design system.** Import from `src/components/` whenever possible. Don't inline styles that exist as components.
 - **No comments in code.** The code should be self-documenting.
 - **Tailwind v3 syntax.** Use `@tailwind base/components/utilities` directives, NOT `@import "tailwindcss/..."` (that's v4).
-- **Don't modify config files** (`tailwind.config.js`, `metro.config.js`, `babel.config.js`, `tsconfig.json`) unless the task explicitly requires it. (Adding `@bridge` alias to tsconfig.json is allowed for desktop architecture changes.)
+- **Don't modify config files** (`tailwind.config.js`, `metro.config.js`, `babel.config.js`, `tsconfig.json`) unless the task explicitly requires it.
 - **Keep changes documentation updated:** Always consult and update `docs/ui-overhaul-v2-changes.md` when modifying visual layouts, themes, stylesheets, or core components to ensure all UI overhaul features remain fully documented.
 - **No dead code.** Don't leave unused imports, variables, or files.
 - **Root cause, not suppression.** For bugs, fix the underlying issue. Don't add try/catch wrappers that silence errors.
 - **Test output format:** Every test must follow the node:test pattern — `▶ SuiteName` for describe blocks, `  ✔ test description (Xms)` for passing tests, and `✔ SuiteName (Xms)` at suite end. See legacy tests (`tests/presets.test.ts`, `tests/types.test.ts`) for reference.
+
+---
+
+## Project Documentation Reference
+
+All docs are in the repo root or under `openspec/`. Consult these before modifying related areas.
+
+### Spec Archive (openspec/changes/)
+
+| Doc | Location | Covers |
+|-----|----------|--------|
+| **HTML Foundation** | `openspec/changes/html-foundation/` | PWA build pipeline, `expo export -p web`, `postbuild.js`, manifest, meta tags |
+| **E-commerce** | `openspec/changes/ecommerce/` | CartContext, product data, screen architecture, mock payment |
+| **HTML-to-RN Images** | `openspec/changes/html-to-rn-images/` | Base64 image extraction, custom hooks (useProducts, useAddToCart, useCartActions, useCheckoutForm, usePayment, useNavigation) |
+| **UI Overhaul v2** | `openspec/changes/ui-overhaul-v2/` | Full design system: colors, typography, components, screen layouts |
+
+### Design System (from UI Overhaul v2)
+
+**Colors** (defined in `tailwind.config.js`):
+| Tailwind Class | Hex | Usage |
+|---------------|-----|-------|
+| `noir` | `#0c0a08` | Primary background |
+| `espresso` | `#1e150e` | Section backgrounds, tab bar |
+| `espresso-2` | `#2b1d12` | Card gradients |
+| `cream` | `#f2ead6` | Primary text, headings |
+| `cream-dim` | `#cfc3a4` | Secondary/muted text |
+| `brass` | `#c9a24b` | Borders, button fills, accents |
+| `brass-light` | `#e6c878` | Titles, active tab, hover |
+| `ember` | `#d9622b` | Tertiary accent, cart badge, remove button |
+| `line` | `rgba(201,162,75,0.28)` | Borders, dividers, card outlines |
+
+**Typography** (Tailwind fontFamily keys: `font-rye`, `font-jost`, `font-cormorant`):
+- **Rye** — All headings (h1-h3), prices, branding
+- **Jost** — Body text, buttons, nav, eyebrow labels
+- **Cormorant Garamond** — Italic accents, lede paragraphs, quotes
+
+**Reusable Components** (`src/components/`):
+- `RopeDivider` — Diagonal repeating-line divider (normal `h-[10px]`, thin `h-[4px]`)
+- `SectionHeading` — Eyebrow + Rye title + optional description
+- `BrassButton` — Two variants: `solid` (brass fill, noir text) and `ghost` (brass border, cream text)
+
+### Screen Structure
+
+| Screen | File | Route | Tab |
+|--------|------|-------|-----|
+| Home | `src/screens/HomeScreen.tsx` | "home" | Home |
+| Products | `src/screens/ProductsScreen.tsx` | "products" | Produtos |
+| Cart | `src/screens/CartScreen.tsx` | "cart" | Carrinho |
+| Checkout | `src/screens/CheckoutScreen.tsx` | "checkout" | (hidden from tab bar) |
+
+### Data Layer
+
+- **Product type** (`src/types.ts`): `id`, `name`, `description`, `price`, `image: ImageSourcePropType | string`, `category`
+- **Products** (`src/data/products.ts`): 10 products (4 with real PNG images, 6 with emoji fallback)
+- **CartContext** (`src/context/CartContext.tsx`): useReducer-based cart with add/remove/update/clear, exposes `total` and `itemCount`
+- **Custom Hooks** (`src/hooks/`): useProducts, useAddToCart, useCartActions, useCheckoutForm, usePayment, useNavigation
+
+### Verification Scripts
+
+```bash
+npm test        # Jest (10 tests: CartContext + App rendering)
+npx tsc --noEmit  # TypeScript type check
+npm run build:web # Expo web export + postbuild → dist/
+```

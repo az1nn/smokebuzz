@@ -48,12 +48,12 @@ export default function CheckoutScreen({
       <View className="flex-1 bg-noir items-center justify-center p-4">
         <Text className="text-5xl mb-4">✅</Text>
         <Text className="text-cream font-rye text-2xl mb-2">
-          Payment Successful!
+          Pagamento Confirmado!
         </Text>
         <Text className="text-cream-dim text-center mb-6">
-          Your order of R$ {total.toFixed(2)} has been processed.
+          Seu pedido de R$ {total.toFixed(2)} foi processado com sucesso.
         </Text>
-        <BrassButton label="Continue Shopping" onPress={handleDone} />
+        <BrassButton label="Continuar Comprando" onPress={handleDone} />
       </View>
     );
   }
@@ -65,20 +65,20 @@ export default function CheckoutScreen({
   return (
     <ScrollView className="flex-1 bg-noir p-4">
       <Text className="text-brass-light font-rye text-3xl mb-6">
-        Checkout
+        Finalizar Pedido
       </Text>
 
       {paymentLoading ? (
         <View className="flex-1 items-center justify-center py-20">
           <ActivityIndicator size="large" color="#c9a24b" />
           <Text className="text-cream-dim text-lg mt-4">
-            Processing payment...
+            Processando pagamento...
           </Text>
         </View>
       ) : (
         <>
           <Text className="text-cream-dim text-sm mb-2 font-jost">
-            Card Number
+            Número do Cartão
           </Text>
           <TextInput
             className={inputClass}
@@ -97,11 +97,11 @@ export default function CheckoutScreen({
           <View className="flex-row gap-4">
             <View className="flex-1">
               <Text className="text-cream-dim text-sm mb-2 font-jost">
-                Expiry
+                Validade
               </Text>
               <TextInput
                 className={inputClass}
-                placeholder="MM/YY"
+                placeholder="MM/AA"
                 placeholderTextColor="#cfc3a4"
                 value={formData.expiry}
                 onChangeText={(v) => handleChange("expiry", v)}
@@ -134,7 +134,7 @@ export default function CheckoutScreen({
           </View>
 
           <Text className="text-cream-dim text-sm mb-2 font-jost">
-            Cardholder Name
+            Nome do Titular
           </Text>
           <TextInput
             className={inputClass}
@@ -182,6 +182,12 @@ export default function CheckoutScreen({
               </Text>
             </View>
           </View>
+
+          {paymentError && (
+            <Text className="text-ember text-sm text-center mb-4">
+              {paymentError.message}
+            </Text>
+          )}
 
           <View className="mt-6 mb-8">
             <BrassButton

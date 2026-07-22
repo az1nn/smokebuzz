@@ -26,34 +26,32 @@ function TabBar({
 
   return (
     <View className="flex-row bg-espresso border-t border-line">
-      {tabs.map(({ key, label }) =>
-        key === "checkout" ? null : (
-          <Pressable
-            key={key}
-            className={`flex-1 items-center py-3 ${
-              current === key ? "border-t-2 border-brass-light" : ""
-            }`}
-            onPress={() => onTab(key)}
-          >
-            <View className="flex-row items-center">
-              <Text
-                className={
-                  current === key ? "text-brass-light" : "text-cream-dim"
-                }
-              >
-                {label}
-              </Text>
-              {key === "cart" && itemCount > 0 && (
-                <View className="bg-ember rounded-full ml-1 px-1.5">
-                  <Text className="text-white text-xs font-bold">
-                    {itemCount}
-                  </Text>
-                </View>
-              )}
-            </View>
-          </Pressable>
-        )
-      )}
+      {tabs.map(({ key, label }) => (
+        <Pressable
+          key={key}
+          className={`flex-1 items-center py-3 ${
+            current === key ? "border-t-2 border-brass-light" : ""
+          }`}
+          onPress={() => onTab(key)}
+        >
+          <View className="flex-row items-center">
+            <Text
+              className={
+                current === key ? "text-brass-light" : "text-cream-dim"
+              }
+            >
+              {label}
+            </Text>
+            {key === "cart" && itemCount > 0 && (
+              <View className="bg-ember rounded-full ml-1 px-1.5">
+                <Text className="text-white text-xs font-bold">
+                  {itemCount}
+                </Text>
+              </View>
+            )}
+          </View>
+        </Pressable>
+      ))}
     </View>
   );
 }
