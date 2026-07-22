@@ -5,22 +5,22 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#0f172a"
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro",
       "pwa": {
-        "name": "Meu PWA App",
-        "shortName": "MeuApp",
+        "name": "smokebuzz",
+        "shortName": "smokebuzz",
         "startUrl": "/",
         "display": "standalone",
-        "backgroundColor": "#ffffff",
-        "themeColor": "#0284c7"
+        "backgroundColor": "#0f172a",
+        "themeColor": "#0f172a"
       }
     }
   }
