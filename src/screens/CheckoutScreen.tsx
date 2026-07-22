@@ -51,7 +51,7 @@ export default function CheckoutScreen({
           Pagamento Confirmado!
         </Text>
         <Text className="text-cream-dim text-center mb-6">
-          Seu pedido de R$ {total.toFixed(2)} foi processado com sucesso.
+          Seu pedido de R$ {total.toFixed(2).replace('.', ',')} foi processado com sucesso.
         </Text>
         <BrassButton label="Continuar Comprando" onPress={handleDone} />
       </View>
@@ -171,7 +171,7 @@ export default function CheckoutScreen({
                   </Text>
                 </View>
                 <Text className="text-cream font-rye">
-                  R$ {(item.product.price * item.quantity).toFixed(2)}
+                  R$ {(item.product.price * item.quantity).toFixed(2).replace('.', ',')}
                 </Text>
               </View>
             ))}
@@ -191,7 +191,7 @@ export default function CheckoutScreen({
 
           <View className="mt-6 mb-8">
             <BrassButton
-              label={`Pagar R$ ${total.toFixed(2)}`}
+              label={`Pagar R$ ${total.toFixed(2).replace('.', ',')}`}
               onPress={handleSubmit}
             />
           </View>

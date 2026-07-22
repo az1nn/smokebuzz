@@ -1,5 +1,5 @@
-import React from "react";
-import { Pressable, Text } from "react-native";
+import React, { useCallback, useRef } from "react";
+import { Pressable, Text, Animated } from "react-native";
 
 type Props = {
   label: string;
@@ -14,21 +14,42 @@ export default function BrassButton({
   variant = "solid",
   className = "",
 }: Props) {
-  const base = "px-5 py-2.5 rounded items-center";
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = useCallback(() => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.97,
+      useNativeDriver: true,
+    }).start();
+  }, [scaleAnim]);
+
+  const handlePressOut = useCallback(() => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 5,
+      useNativeDriver: true,
+    }).start();
+  }, [scaleAnim]);
+
+  const base = "px-[22px] py-[11px] rounded-[2px] items-center";
   const solid = "bg-brass";
   const ghost = "border border-brass";
   const textSolid =
-    "text-noir uppercase text-xs tracking-[0.8px] font-semibold";
-  const textGhost = "text-cream uppercase text-xs tracking-[0.8px]";
+    "text-noir uppercase text-sm tracking-[0.8px] font-semibold";
+  const textGhost = "text-cream uppercase text-sm tracking-[0.8px]";
 
   return (
-    <Pressable
-      onPress={onPress}
-      className={`${base} ${variant === "solid" ? solid : ghost} ${className}`}
-    >
-      <Text className={variant === "solid" ? textSolid : textGhost}>
-        {label}
-      </Text>
-    </Pressable>
+    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+      <Pressable
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        className={`${base} ${variant === "solid" ? solid : ghost} ${className}`}
+      >
+        <Text className={variant === "solid" ? textSolid : textGhost}>
+          {label}
+        </Text>
+      </Pressable>
+    </Animated.View>
   );
 }

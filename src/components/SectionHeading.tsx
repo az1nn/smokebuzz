@@ -9,7 +9,7 @@ type Props = {
 
 export default function SectionHeading({ eyebrow, title, description }: Props) {
   return (
-    <View className="mb-10">
+    <View className="mb-[56px]">
       {eyebrow && (
         <Text className="text-cream-dim uppercase text-xs tracking-[3px] mb-2 font-jost">
           {eyebrow}
@@ -17,7 +17,7 @@ export default function SectionHeading({ eyebrow, title, description }: Props) {
       )}
       <Text className="text-brass-light font-rye text-3xl">{title}</Text>
       {description && (
-        <Text className="text-cream-dim mt-4 font-jost text-sm leading-relaxed">
+        <Text className="text-cream-dim mt-4 font-cormorant text-[19.2px] leading-relaxed">
           {description}
         </Text>
       )}

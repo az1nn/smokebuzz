@@ -49,7 +49,7 @@ export default function CartScreen({
                 {item.product.name}
               </Text>
               <Text className="text-brass font-rye text-base">
-                R$ {item.product.price.toFixed(2)}
+                R$ {item.product.price.toFixed(2).replace('.', ',')}
               </Text>
               <View className="flex-row items-center mt-2">
                 <Pressable
@@ -86,7 +86,7 @@ export default function CartScreen({
         <View className="flex-row justify-between mb-4">
           <Text className="text-cream font-rye text-xl">Total</Text>
           <Text className="text-brass font-rye text-xl">
-            R$ {total.toFixed(2)}
+            R$ {total.toFixed(2).replace('.', ',')}
           </Text>
         </View>
         <BrassButton label="Finalizar Pedido" onPress={onCheckout} />

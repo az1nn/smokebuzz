@@ -7,6 +7,7 @@ import HomeScreen from "./src/screens/HomeScreen";
 import ProductsScreen from "./src/screens/ProductsScreen";
 import CartScreen from "./src/screens/CartScreen";
 import CheckoutScreen from "./src/screens/CheckoutScreen";
+import StickyHeader from "./src/components/StickyHeader";
 import { Screen } from "./src/types";
 
 function TabBar({
@@ -66,6 +67,7 @@ function AppInner() {
 
   return (
     <View className="flex-1 bg-noir">
+      <StickyHeader />
       {screen === "home" && (
         <HomeScreen onNavigateProducts={() => setScreen("products")} />
       )}
