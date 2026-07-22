@@ -62,6 +62,12 @@ export function useCheckoutForm() {
     [validate, formData]
   );
 
+  const submit = useCallback((): boolean => {
+    const newErrors = validate(formData);
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }, [validate, formData]);
+
   const reset = useCallback(() => {
     setFormData(initialFormData);
     setErrors({});
@@ -73,7 +79,7 @@ export function useCheckoutForm() {
     isValid,
     handleChange,
     handleBlur,
-    validate,
+    submit,
     validateAll,
     reset,
   };

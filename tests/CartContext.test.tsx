@@ -1,14 +1,15 @@
 import React from "react";
 import { render, fireEvent } from "@testing-library/react-native";
 import { CartProvider, useCart } from "../src/context/CartContext";
-import { Text, Pressable, View } from "react-native";
+import { Text, Pressable, View, ImageSourcePropType } from "react-native";
+import { Product } from "../src/types";
 
-const testProduct = {
+const testProduct: Product = {
   id: "1",
   name: "Test Product",
   description: "Test description",
   price: 10.0,
-  image: "🛒",
+  image: require("../assets/icon.png") as ImageSourcePropType,
   category: "Test",
 };
 

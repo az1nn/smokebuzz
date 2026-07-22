@@ -11,14 +11,14 @@ export default function CheckoutScreen({
   onDone: () => void;
 }) {
   const { items, total, clearCart } = useCart();
-  const { formData, errors, isValid, handleChange, handleBlur, validate, reset } = useCheckoutForm();
+  const { formData, errors, isValid, handleChange, handleBlur, submit, reset } = useCheckoutForm();
   const { processPayment, loading: paymentLoading, error: paymentError } = usePayment();
   const { goToProducts } = useNavigation();
 
   const [success, setSuccess] = React.useState(false);
 
   const handleSubmit = async () => {
-    if (!validate()) return;
+    if (!submit()) return;
     const result = await processPayment(total);
     if (result.success) {
       clearCart();
