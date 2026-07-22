@@ -1,13 +1,15 @@
 import React from "react";
-import { View, Text, FlatList, Pressable } from "react-native";
+import { View, Text, FlatList, Pressable, Image } from "react-native";
 import { useCart } from "../context/CartContext";
+import { useCartActions } from "../hooks/useCartActions";
 
 export default function CartScreen({
   onCheckout,
 }: {
   onCheckout: () => void;
 }) {
-  const { items, updateQuantity, removeItem, total } = useCart();
+  const { items, total } = useCart();
+  const { updateQuantity, removeItem, navigateToCheckout } = useCartActions();
 
   if (items.length === 0) {
     return (
@@ -26,7 +28,11 @@ export default function CartScreen({
         contentContainerClassName="p-4 pt-0"
         renderItem={({ item }) => (
           <View className="bg-slate-800 rounded-xl p-4 mb-3 flex-row items-center">
-            <Text className="text-3xl mr-3">{item.product.image}</Text>
+            <Image
+              source={item.product.image}
+              className="w-16 h-16 object-cover rounded-lg mr-3"
+              resizeMode="cover"
+            />
             <View className="flex-1">
               <Text className="text-white font-bold">{item.product.name}</Text>
               <Text className="text-sky-400">
@@ -66,7 +72,7 @@ export default function CartScreen({
           Total: R$ {total.toFixed(2)}
         </Text>
         <Pressable
-          onPress={onCheckout}
+          onPress={navigateToCheckout}
           className="bg-green-500 rounded-xl py-3 items-center"
         >
           <Text className="text-white font-bold text-lg">Checkout</Text>

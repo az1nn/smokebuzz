@@ -1,5 +1,5 @@
 import "./global.css";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text, Pressable } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { CartProvider, useCart } from "./src/context/CartContext";
@@ -59,6 +59,10 @@ function AppInner() {
   const { itemCount } = useCart();
   const [screen, setScreen] = useState<Screen>("products");
 
+  const handleTab = useCallback((newScreen: Screen) => {
+    setScreen(newScreen);
+  }, []);
+
   return (
     <View className="flex-1 bg-slate-900">
       {screen === "products" && (
@@ -73,7 +77,7 @@ function AppInner() {
       {screen !== "checkout" && (
         <TabBar
           current={screen}
-          onTab={setScreen}
+          onTab={handleTab}
           itemCount={itemCount}
         />
       )}
