@@ -112,14 +112,16 @@ export default function HomeScreen({
     <ScrollView className="flex-1 bg-noir">
       {/* HERO */}
       <View
-        className="min-h-[92vh] items-center justify-center px-7 pt-20 overflow-hidden"
+        className="min-h-[92vh] items-center justify-center px-7 overflow-hidden"
         style={{
           backgroundColor: "#0c0a08",
+          paddingTop: isMobile ? 100 : 80,
         }}
       >
         {/* BG gradients */}
         <View
           className="absolute inset-0"
+          pointerEvents="none"
           style={{
             backgroundImage:
               "radial-gradient(ellipse at 75% 20%, rgba(217,98,43,0.10), transparent 55%), radial-gradient(ellipse at 15% 85%, rgba(201,162,75,0.08), transparent 50%)",
@@ -128,6 +130,7 @@ export default function HomeScreen({
 
         {/* Smoke wisps */}
         <Animated.View
+          pointerEvents="none"
           className="absolute"
           style={[
             {
@@ -142,6 +145,7 @@ export default function HomeScreen({
           ]}
         />
         <Animated.View
+          pointerEvents="none"
           className="absolute"
           style={[
             {
@@ -181,6 +185,7 @@ export default function HomeScreen({
           ]}
         />
         <Animated.View
+          pointerEvents="none"
           className="absolute"
           style={[
             {
@@ -247,19 +252,18 @@ export default function HomeScreen({
               />
             </View>
           </View>
-          {!isMobile && (
-            <View className="items-center justify-center">
-              <Animated.Image
-                source={require("../../assets/logosmokebuzz-transparent.png")}
-                className="w-[360px] h-[360px] rounded-full"
-                style={{
-                  transform: [{ translateY: floatAnim }],
-                  maxWidth: "80%",
-                }}
-                resizeMode="contain"
-              />
-            </View>
-          )}
+          <View className="items-center justify-center" style={{ width: isMobile ? 160 : 360 }}>
+            <Animated.Image
+              source={require("../../assets/logosmokebuzz-transparent.png")}
+              style={{
+                width: isMobile ? 160 : 360,
+                height: isMobile ? 160 : 360,
+                borderRadius: isMobile ? 80 : 180,
+                transform: [{ translateY: floatAnim }],
+              }}
+              resizeMode="contain"
+            />
+          </View>
         </View>
       </View>
 
