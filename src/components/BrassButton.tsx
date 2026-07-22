@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Pressable, Text, Animated, Platform } from "react-native";
 
 type Props = {
@@ -14,6 +14,7 @@ export default function BrassButton({
   variant = "solid",
   className = "",
 }: Props) {
+  const [hovered, setHovered] = useState(false);
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = useCallback(() => {
@@ -32,11 +33,11 @@ export default function BrassButton({
   }, [scaleAnim]);
 
   const base = "px-[22px] py-[11px] rounded-[2px] items-center";
-  const solid = "bg-brass";
-  const ghost = "border border-brass";
+  const solid = `bg-brass ${hovered ? "bg-brass-light" : ""}`;
+  const ghost = `border border-brass ${hovered ? "bg-brass" : ""}`;
   const textSolid =
     "text-noir uppercase text-sm tracking-[0.8px]";
-  const textGhost = "text-cream uppercase text-sm tracking-[0.8px]";
+  const textGhost = `text-cream uppercase text-sm tracking-[0.8px] ${hovered ? "text-noir" : ""}`;
 
   return (
     <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
@@ -44,6 +45,7 @@ export default function BrassButton({
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
+        {...({ onMouseEnter: () => setHovered(true), onMouseLeave: () => setHovered(false) } as any)}
         className={`${base} ${variant === "solid" ? solid : ghost} ${className}`}
       >
         <Text className={variant === "solid" ? textSolid : textGhost}>
