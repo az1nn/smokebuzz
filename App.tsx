@@ -1,4 +1,4 @@
-import "../global.css";
+import "./global.css";
 import React, { useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import { StatusBar } from "expo-status-bar";

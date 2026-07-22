@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Meu PWA App",
-    "slug": "meu-pwa-app",
+    "name": "smokebuzz",
+    "slug": "smokebuzz",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,7 +14,6 @@
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro",
-      "output": "static",
       "pwa": {
         "name": "Meu PWA App",
         "shortName": "MeuApp",
