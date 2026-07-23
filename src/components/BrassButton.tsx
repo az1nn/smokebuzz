@@ -5,6 +5,7 @@ type Props = {
   label: string;
   onPress: () => void;
   variant?: "solid" | "ghost";
+  size?: "md" | "sm";
   className?: string;
 };
 
@@ -12,6 +13,7 @@ export default function BrassButton({
   label,
   onPress,
   variant = "solid",
+  size = "md",
   className = "",
 }: Props) {
   const [hovered, setHovered] = useState(false);
@@ -32,12 +34,14 @@ export default function BrassButton({
     }).start();
   }, [scaleAnim]);
 
-  const base = "px-[22px] py-[11px] rounded-[2px] items-center";
+  const sizeClass = size === "sm" ? "px-4 py-2" : "px-[22px] py-[11px]";
+  const textSize = size === "sm" ? "text-xs" : "text-sm";
+  const base = `${sizeClass} rounded-[2px] items-center`;
   const solid = `bg-brass ${hovered ? "bg-brass-light" : ""}`;
   const ghost = `border border-brass ${hovered ? "bg-brass" : ""}`;
   const textSolid =
-    "text-noir uppercase text-sm tracking-[0.8px]";
-  const textGhost = `text-cream uppercase text-sm tracking-[0.8px] ${hovered ? "text-noir" : ""}`;
+    `text-noir uppercase ${textSize} tracking-[0.8px]`;
+  const textGhost = `text-cream uppercase ${textSize} tracking-[0.8px] ${hovered ? "text-noir" : ""}`;
 
   return (
     <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>

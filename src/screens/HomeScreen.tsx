@@ -170,7 +170,7 @@ export default function HomeScreen({
         </Animated.View>
         <View
           className={`w-full ${isMobile ? "items-center" : "flex-row items-center gap-10"}`}
-          style={{ maxWidth: 1180 }}
+          style={{ maxWidth: 1180, flexDirection: isMobile ? "column-reverse" : "row" }}
         >
           <View className={isMobile ? "items-center" : "flex-1"}>
             <Text className="text-brass uppercase text-xs tracking-[3px] mb-[18px] font-jost">
@@ -226,7 +226,7 @@ export default function HomeScreen({
           <Image
             source={require("../../assets/logosmokebuzz-hero.png")}
             className="w-full rounded-[6px] border border-line"
-            style={{ maxWidth: Math.min(280, width * 0.4) }}
+            style={{ maxWidth: Math.min(420, width * 0.38) }}
           />
           <View className="flex-1 min-w-[250px]">
             <SectionHeading

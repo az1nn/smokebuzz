@@ -74,7 +74,7 @@ export default function ProductsScreen({
     return (
       <Animated.View style={{ transform: [{ translateY: hovered ? -6 : 0 }] }}>
         <View
-          className={`bg-noir border rounded-lg overflow-hidden m-2 flex-1 min-w-[140px] ${hovered ? "border-brass" : "border-line"}`}
+          className={`bg-noir border rounded-lg overflow-hidden flex-1 min-w-[140px] ${hovered ? "border-brass" : "border-line"}`}
           {...({ onMouseEnter: () => setHovered(true), onMouseLeave: () => setHovered(false) } as any)}
         >
           <View className="bg-white aspect-square p-[18px] items-center justify-center">
@@ -100,7 +100,7 @@ export default function ProductsScreen({
                 {altTexts[item.id]}
               </Text>
             )}
-            <BrassButton label="Adicionar" onPress={() => addToCart(item)} />
+            <BrassButton label="Adicionar" size="sm" onPress={() => addToCart(item)} />
           </View>
         </View>
       </Animated.View>
@@ -142,7 +142,7 @@ export default function ProductsScreen({
   );
 
   return (
-    <ScrollView className="flex-1 bg-noir">
+    <ScrollView className="flex-1 bg-espresso">
       <View className="p-4 pt-12">
         <SectionHeading
           eyebrow="Direto do estoque"
@@ -157,7 +157,7 @@ export default function ProductsScreen({
         numColumns={numColumns}
         key={numColumns}
         scrollEnabled={false}
-        contentContainerClassName="p-2 pb-4"
+        contentContainerStyle={{ gap: 24, paddingLeft: 16, paddingRight: 16, paddingBottom: 16 }}
         ListFooterComponent={renderFooter}
       />
     </ScrollView>
