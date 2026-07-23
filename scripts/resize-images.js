@@ -6,6 +6,7 @@ const ASSETS = path.resolve(__dirname, "..", "assets");
 
 const TARGETS = [
   { name: "logosmokebuzz-transparent.png", max: 42 },
+  { name: "logosmokebuzz-hero.png", max: 300 },
   { name: "piteira_longa_girls_in_green.png", max: 200 },
   { name: "piteira_tradicional_papelito.png", max: 200 },
   { name: "seda_zomo_branca.png", max: 200 },

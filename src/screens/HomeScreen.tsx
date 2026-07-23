@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ScrollView, View, Text, Image, Animated, Dimensions, Platform } from "react-native";
+import Svg, { Circle } from "react-native-svg";
 import RopeDivider from "../components/RopeDivider";
 import SectionHeading from "../components/SectionHeading";
 import BrassButton from "../components/BrassButton";
@@ -126,18 +127,10 @@ export default function HomeScreen({
   const { width } = Dimensions.get("window");
   const isMobile = width < 900;
   const sectionPad = width <= 560 ? "py-[72px]" : "py-[104px]";
-  const wisp1Style = {
-    ...wispInterpolate(wisp1Anim),
-    opacity: 0.5,
-  };
-  const wisp2Style = {
-    ...wispInterpolate(wisp2Anim),
-    opacity: 0.5,
-  };
-  const wisp3Style = {
-    ...wispInterpolate(wisp3Anim),
-    opacity: 0.5,
-  };
+  const badgeSize = Math.min(360, width * 0.8);
+  const wisp1Style = wispInterpolate(wisp1Anim);
+  const wisp2Style = wispInterpolate(wisp2Anim);
+  const wisp3Style = wispInterpolate(wisp3Anim);
 
   return (
     <ScrollView className="flex-1 bg-noir">
@@ -159,52 +152,22 @@ export default function HomeScreen({
           } as any}
         />
 
-        {/* Smoke wisps */}
-        <Animated.View
-          pointerEvents="none"
-          className="absolute"
-          style={[
-            {
-              top: "8%",
-              left: "6%",
-              width: 260,
-              height: 260,
-              borderRadius: 130,
-              backgroundColor: "#f2ead6",
-            },
-            wisp1Style,
-          ]}
-        />
-        <Animated.View
-          pointerEvents="none"
-          className="absolute"
-          style={[
-            {
-              top: "55%",
-              right: "8%",
-              width: 180,
-              height: 180,
-              borderRadius: 90,
-              backgroundColor: "#c9a24b",
-            },
-            wisp2Style,
-          ]}
-        />
-        <Animated.View
-          pointerEvents="none"
-          className="absolute"
-          style={[
-            {
-              top: "20%",
-              right: "22%",
-              width: 120,
-              height: 120,
-              borderRadius: 60,
-              backgroundColor: "#d9622b",
-            },
-            wisp3Style,
-          ]}
-        />
+        {/* Smoke wisps — HTML uses SVG circles with specific radii inside containers */}
+        <Animated.View pointerEvents="none" className="absolute" style={[{ top: "8%", left: "6%", width: 260, height: 260 }, wisp1Style]}>
+          <Svg width="100%" height="100%" viewBox="0 0 200 200">
+            <Circle cx="100" cy="100" r="70" fill="#f2ead6" />
+          </Svg>
+        </Animated.View>
+        <Animated.View pointerEvents="none" className="absolute" style={[{ top: "55%", right: "8%", width: 180, height: 180 }, wisp2Style]}>
+          <Svg width="100%" height="100%" viewBox="0 0 200 200">
+            <Circle cx="100" cy="100" r="60" fill="#c9a24b" />
+          </Svg>
+        </Animated.View>
+        <Animated.View pointerEvents="none" className="absolute" style={[{ top: "20%", right: "22%", width: 120, height: 120 }, wisp3Style]}>
+          <Svg width="100%" height="100%" viewBox="0 0 200 200">
+            <Circle cx="100" cy="100" r="50" fill="#d9622b" />
+          </Svg>
+        </Animated.View>
         <View
           className={`w-full ${isMobile ? "items-center" : "flex-row items-center gap-10"}`}
           style={{ maxWidth: 1180 }}
@@ -231,13 +194,12 @@ export default function HomeScreen({
               />
             </View>
           </View>
-          <View className="items-center justify-center" style={{ width: isMobile ? 160 : 360 }}>
+          <View className="items-center justify-center" style={{ width: badgeSize }}>
             <Animated.Image
-              source={require("../../assets/logosmokebuzz-transparent.png")}
+              source={require("../../assets/logosmokebuzz-hero.png")}
               style={[
                 {
-                  width: isMobile ? 160 : 360,
-                  height: isMobile ? 160 : 360,
+                  width: badgeSize,
                   transform: [{ translateY: floatAnim }],
                 },
                 Platform.OS === "web"
@@ -262,8 +224,9 @@ export default function HomeScreen({
       <View className={`bg-espresso ${sectionPad} px-7`}>
         <View className="max-w-[1180px] mx-auto flex-row gap-[60px] items-center flex-wrap">
           <Image
-            source={require("../../assets/logosmokebuzz-transparent.png")}
-            className="w-full max-w-[280px] rounded-[6px] border border-line"
+            source={require("../../assets/logosmokebuzz-hero.png")}
+            className="w-full rounded-[6px] border border-line"
+            style={{ maxWidth: Math.min(280, width * 0.4) }}
           />
           <View className="flex-1 min-w-[250px]">
             <SectionHeading
