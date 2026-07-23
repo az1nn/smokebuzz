@@ -200,6 +200,7 @@ export default function HomeScreen({
               style={[
                 {
                   width: badgeSize,
+                  borderRadius: 9999,
                   transform: [{ translateY: floatAnim }],
                 },
                 Platform.OS === "web"
