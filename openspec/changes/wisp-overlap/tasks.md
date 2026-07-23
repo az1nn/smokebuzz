@@ -1,18 +1,16 @@
-## Task Checklist
+## Task Checklist (completed)
 
-1. [ ] **Update wisp positions in HomeScreen.tsx**
-   - Wisp 1: change `top: "8%", left: "6%"` → `top: "5%", left: "15%"`
-   - Wisp 2: change `top: "55%", right: "8%"` → `top: "18%", left: "32%"`
-   - Wisp 3: change `top: "20%", right: "22%"` → `top: "12%", left: "22%"`
-   - Remove `right` property from wisp 2 and wisp 3 (use `left` instead)
+1. [x] **Diagnose root cause** — NativeWind's `absolute` class is ignored on `Animated.View`; all three wisps rendered as `position: relative` inside the flex container. Fixed by using `style={{ position: "absolute" }}` inline instead of `className="absolute"`.
 
-2. [ ] **Add zIndex to each wisp Animated.View**
-   - Wisp 1: `zIndex: 3`
-   - Wisp 2: `zIndex: 5`
-   - Wisp 3: `zIndex: 4`
+2. [x] **Restore HTML-correct positions** — reverted to original HTML positions:
+   - Wisp 1: `top: "8%", left: "6%", width: 260, height: 260`
+   - Wisp 2: `top: "55%", right: "8%", width: 180, height: 180`
+   - Wisp 3: `top: "20%", right: "22%", width: 120, height: 120`
 
-3. [ ] **Verify TypeScript** — `npx tsc --noEmit` (no errors)
+3. [x] **Reduce hero paddingTop** — `isMobile ? 20 : 16` (was 100/80)
 
-4. [ ] **Run tests** — `npm test` (all pass)
+4. [x] **Verify TypeScript** — `npx tsc --noEmit` (no errors)
 
-5. [ ] **Commit & push** after all checks pass
+5. [x] **Run tests** — `npm test` (all pass, 10/10)
+
+6. [x] **Puppeteer confirmation** — After fix: wisp 1 renders at `7.7% 6.0%` (HTML ref: `7.9% 6.0%`), `position: absolute` confirmed in computed styles

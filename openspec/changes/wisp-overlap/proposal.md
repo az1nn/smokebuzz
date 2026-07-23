@@ -2,18 +2,18 @@
 
 ## Context
 
-The HomeScreen hero section renders 3 SVG wisp circles (smoke wisps) inside `Animated.View` elements with drift animations. Currently they are positioned far apart — wisp 1 at top-left (`top: "8%"`, `left: "6%"`), wisp 2 at bottom-right (`top: "55%"`, `right: "8%"`), and wisp 3 at top-right (`top: "20%"`, `right: "22%"`). This scatters them across the hero section with no overlap.
+The HomeScreen hero section renders 3 SVG wisp circles (smoke wisps) inside `Animated.View` elements with drift animations. Despite using the same CSS positions as the HTML source (`top:8% left:6%`, `top:55% right:8%`, `top:20% right:22%`), the RN version rendered them incorrectly — all three were stacked vertically in the left-center area, the hero was excessively tall, and the wisps never overlapped during animation.
 
-These positions were ported directly from the HTML source but fail to replicate the layered smoke effect because the circles never cross paths.
+## Problem (Root Cause)
 
-## Problem
+NativeWind's `className="absolute"` is silently ignored on `Animated.View` (React Native's animated wrapper). The wisps rendered as `position: relative` inside a flex container, causing:
+1. All percentage offsets to be miscalculated (relative to normal flow, not the hero)
+2. Hero height inflated from ~895px to ~1402px (wisps contributed to flex layout)
+3. Zero overlap between circles (they stacked vertically instead of layering)
+4. Excessive `paddingTop: 100/80` pushed content even further down
 
-- Wisp circles are spread across opposite corners of the hero section (top-left ↔ bottom-right ↔ top-right)
-- No `zIndex` is set on any wisp, so layering is undefined
-- The drift animation moves each wisp in the same directional pattern (up-left), but since they start far apart they never overlap during their cycle
+## Solution
 
-## Objectives
-
-1. Reposition the 3 wisp circles so they are clustered in the upper-center region of the hero section
-2. Add explicit `zIndex` values to each wisp container to control visual layering
-3. Preserve existing animation parameters (duration, delay, keyframes, colors, sizes) — only position and z-index change
+1. Replace `className="absolute"` with `style={{ position: "absolute" }}` on each wisp `Animated.View`
+2. Revert to exact HTML positions (original values before earlier repositioning attempts)
+3. Reduce `paddingTop` from 100/80 to 20/16
