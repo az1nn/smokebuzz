@@ -152,18 +152,18 @@ export default function HomeScreen({
           } as any}
         />
 
-        {/* Smoke wisps — HTML uses SVG circles with specific radii inside containers */}
-        <Animated.View pointerEvents="none" className="absolute" style={[{ top: "8%", left: "6%", width: 260, height: 260 }, wisp1Style]}>
+        {/* Smoke wisps — overlapped positions + z-index layering */}
+        <Animated.View pointerEvents="none" className="absolute" style={[{ top: "5%", left: "15%", width: 260, height: 260, zIndex: 3 }, wisp1Style]}>
           <Svg width="100%" height="100%" viewBox="0 0 200 200">
             <Circle cx="100" cy="100" r="70" fill="#f2ead6" />
           </Svg>
         </Animated.View>
-        <Animated.View pointerEvents="none" className="absolute" style={[{ top: "55%", right: "8%", width: 180, height: 180 }, wisp2Style]}>
+        <Animated.View pointerEvents="none" className="absolute" style={[{ top: "18%", left: "32%", width: 180, height: 180, zIndex: 5 }, wisp2Style]}>
           <Svg width="100%" height="100%" viewBox="0 0 200 200">
             <Circle cx="100" cy="100" r="60" fill="#c9a24b" />
           </Svg>
         </Animated.View>
-        <Animated.View pointerEvents="none" className="absolute" style={[{ top: "20%", right: "22%", width: 120, height: 120 }, wisp3Style]}>
+        <Animated.View pointerEvents="none" className="absolute" style={[{ top: "12%", left: "22%", width: 120, height: 120, zIndex: 4 }, wisp3Style]}>
           <Svg width="100%" height="100%" viewBox="0 0 200 200">
             <Circle cx="100" cy="100" r="50" fill="#d9622b" />
           </Svg>
