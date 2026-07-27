@@ -1,12 +1,48 @@
 import React, { useState } from "react";
-import { View, Text, Image, Platform, Pressable, useWindowDimensions } from "react-native";
+import { View, Text, Image, Platform, Pressable, useWindowDimensions, Linking } from "react-native";
 import BrassButton from "./BrassButton";
+
+function NavLink({
+  label,
+  hovered,
+  onHover,
+  onPress,
+}: {
+  label: string;
+  hovered: boolean;
+  onHover: (v: boolean) => void;
+  onPress?: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      {...({ onMouseEnter: () => onHover(true), onMouseLeave: () => onHover(false) } as any)}
+    >
+      <Text
+        className={`text-sm font-jost tracking-[0.4px] transition-colors duration-200 ${
+          hovered ? "text-brass-light" : "text-cream-dim opacity-[0.85]"
+        }`}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
 
 export default function StickyHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const { width } = useWindowDimensions();
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
+
+  const navLinks = [
+    { key: "destaques", label: "Destaques" },
+    { key: "produtos", label: "Produtos" },
+    { key: "sobre", label: "Sobre" },
+    { key: "localizacao", label: "Localização" },
+    { key: "contato", label: "Contato" },
+  ];
 
   return (
     <View
@@ -27,15 +63,18 @@ export default function StickyHeader() {
         </View>
         {Platform.OS === "web" && width > 900 && (
           <View className="flex-row gap-7 items-center">
-            <Text className="text-cream-dim text-sm font-jost opacity-[0.85] tracking-[0.4px]">Destaques</Text>
-            <Text className="text-cream-dim text-sm font-jost opacity-[0.85] tracking-[0.4px]">Produtos</Text>
-            <Text className="text-cream-dim text-sm font-jost opacity-[0.85] tracking-[0.4px]">Sobre</Text>
-            <Text className="text-cream-dim text-sm font-jost opacity-[0.85] tracking-[0.4px]">Localização</Text>
-            <Text className="text-cream-dim text-sm font-jost opacity-[0.85] tracking-[0.4px]">Contato</Text>
+            {navLinks.map((link) => (
+              <NavLink
+                key={link.key}
+                label={link.label}
+                hovered={hoveredLink === link.key}
+                onHover={(v) => setHoveredLink(v ? link.key : null)}
+              />
+            ))}
             <BrassButton
               label="Chamar no Direct"
               variant="solid"
-              onPress={() => {}}
+              onPress={() => Linking.openURL("https://instagram.com/smokebuzztabacaria")}
             />
           </View>
         )}
@@ -48,15 +87,17 @@ export default function StickyHeader() {
       {menuOpen && width <= 900 && (
         <View className="mt-4 pt-4 border-t border-line">
           <View className="gap-4">
-            <Text className="text-cream-dim text-sm font-jost tracking-[0.4px]">Destaques</Text>
-            <Text className="text-cream-dim text-sm font-jost tracking-[0.4px]">Produtos</Text>
-            <Text className="text-cream-dim text-sm font-jost tracking-[0.4px]">Sobre</Text>
-            <Text className="text-cream-dim text-sm font-jost tracking-[0.4px]">Localização</Text>
-            <Text className="text-cream-dim text-sm font-jost tracking-[0.4px]">Contato</Text>
+            {navLinks.map((link) => (
+              <Pressable key={link.key} onPress={() => {}}>
+                <Text className="text-cream-dim text-sm font-jost tracking-[0.4px]">
+                  {link.label}
+                </Text>
+              </Pressable>
+            ))}
             <BrassButton
               label="Chamar no Direct"
               variant="solid"
-              onPress={() => {}}
+              onPress={() => Linking.openURL("https://instagram.com/smokebuzztabacaria")}
             />
           </View>
         </View>

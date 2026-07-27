@@ -14,7 +14,7 @@ const altTexts: Record<string, string> = {
   "2": "Avulsa por R$ 1,50",
 };
 
-const categorias = [
+export const categorias = [
   { title: "Charutos", description: "Linha selecionada de charutos nacionais e importados, para todos os paladares." },
   { title: "Cigarros", description: "Principais marcas do mercado, sempre com estoque em dia." },
   { title: "Sedas & Piteiras", description: "Sedas de diversas marcas e piteiras em vidro, metal e madeira." },
@@ -23,7 +23,7 @@ const categorias = [
   { title: "Isqueiros", description: "Do básico ao colecionável — sempre um isqueiro à altura do momento." },
 ];
 
-function renderIcon(title: string) {
+export function renderIcon(title: string) {
   const props = { width: 44, height: 44, viewBox: "0 0 48 48", fill: "none", stroke: "#e6c878", strokeWidth: 1.6 };
   switch (title) {
     case "Charutos":

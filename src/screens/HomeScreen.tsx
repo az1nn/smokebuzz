@@ -1,9 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
-import { ScrollView, View, Text, Image, Animated, Dimensions, Platform } from "react-native";
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import { ScrollView, View, Text, Image, Animated, Dimensions, Platform, Linking, Pressable } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import RopeDivider from "../components/RopeDivider";
 import SectionHeading from "../components/SectionHeading";
 import BrassButton from "../components/BrassButton";
+import { useProducts } from "../hooks/useProducts";
+import { useAddToCart } from "../hooks/useAddToCart";
+import { Product } from "../types";
+import CategoryCard from "../components/CategoryCard";
+import { categorias, renderIcon } from "./ProductsScreen";
 
 const diferenciais = [
   {
@@ -23,6 +28,11 @@ const diferenciais = [
   },
 ];
 
+const altTexts: Record<string, string> = {
+  "1": "Avulsa por R$ 1,00",
+  "2": "Avulsa por R$ 1,50",
+};
+
 export default function HomeScreen({
   onNavigateProducts,
 }: {
@@ -33,6 +43,22 @@ export default function HomeScreen({
   const wisp2Anim = useRef(new Animated.Value(0.5)).current;
   const wisp3Anim = useRef(new Animated.Value(0.5)).current;
   const [reducedMotion, setReducedMotion] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
+  const sectionY = useRef<Record<string, number>>({});
+  const { products } = useProducts();
+  const { addToCart } = useAddToCart();
+
+  const handleScrollTo = useCallback((section: string) => {
+    const y = sectionY.current[section];
+    if (y !== undefined) {
+      scrollRef.current?.scrollTo({ y, animated: true });
+    }
+  }, []);
+
+  const onSectionLayout = useCallback((section: string, event: any) => {
+    const y = event.nativeEvent.layout.y;
+    sectionY.current[section] = y;
+  }, []);
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -133,7 +159,7 @@ export default function HomeScreen({
   const wisp3Style = wispInterpolate(wisp3Anim);
 
   return (
-    <ScrollView className="flex-1 bg-noir">
+    <ScrollView ref={scrollRef} className="flex-1 bg-noir">
       {/* HERO */}
       <View
         className="min-h-[92vh] items-center justify-center px-7 overflow-hidden"
@@ -189,7 +215,7 @@ export default function HomeScreen({
               <BrassButton label="Ver produtos" onPress={onNavigateProducts} />
               <BrassButton
                 label="Pedir pelo Instagram"
-                onPress={() => {}}
+                onPress={() => Linking.openURL("https://instagram.com/smokebuzztabacaria")}
                 variant="ghost"
               />
             </View>
@@ -222,7 +248,7 @@ export default function HomeScreen({
       <RopeDivider />
 
       {/* SOBRE */}
-      <View className={`bg-espresso ${sectionPad} px-7`}>
+      <View className={`bg-espresso ${sectionPad} px-7`} onLayout={(e) => onSectionLayout("sobre", e)}>
         <View className="max-w-[1180px] mx-auto flex-row gap-[60px] items-center flex-wrap">
           <Image
             source={require("../../assets/logosmokebuzz-hero.png")}
@@ -261,8 +287,61 @@ export default function HomeScreen({
 
       <RopeDivider />
 
+      {/* DESTAQUES */}
+      <View className={`bg-espresso ${sectionPad} px-7`} onLayout={(e) => onSectionLayout("destaques", e)}>
+        <View className="max-w-[1180px] mx-auto">
+          <SectionHeading
+            eyebrow="Direto do estoque"
+            title="Destaques da semana"
+            description="Alguns dos itens mais pedidos no Direct — confirme disponibilidade antes de fechar o pedido."
+          />
+          <View className={`flex-row flex-wrap`} style={{ gap: 24 }}>
+            {products.slice(0, 4).map((item: Product) => (
+              <ProductCard key={item.id} item={item} addToCart={addToCart} isMobile={isMobile} />
+            ))}
+          </View>
+        </View>
+      </View>
+
+      <RopeDivider thin />
+
+      {/* CATEGORIAS */}
+      <View className={`${sectionPad} px-7`} onLayout={(e) => onSectionLayout("categorias", e)}>
+        <View className="max-w-[1180px] mx-auto">
+          <SectionHeading
+            eyebrow="O que você encontra aqui"
+            title="Categorias"
+            description="Uma seleção pensada para todo tipo de fumante — do iniciante ao mais exigente."
+          />
+          <View className="flex-row flex-wrap" style={{ gap: 24 }}>
+            {categorias.map((cat) => (
+              <View
+                key={cat.title}
+                className={
+                  width > 900 ? "w-[calc(33.333%-16px)]"
+                    : width > 560 ? "w-[calc(50%-12px)]"
+                    : "w-full"
+                }
+              >
+                <CategoryCard
+                  icon={
+                    <View className="w-11 h-11 mb-5 items-center justify-center">
+                      {renderIcon(cat.title)}
+                    </View>
+                  }
+                  title={cat.title}
+                  description={cat.description}
+                />
+              </View>
+            ))}
+          </View>
+        </View>
+      </View>
+
+      <RopeDivider thin />
+
       {/* DIFERENCIAIS */}
-      <View className={`bg-espresso ${sectionPad} px-7`}>
+      <View className={`bg-espresso ${sectionPad} px-7`} onLayout={(e) => onSectionLayout("diferenciais", e)}>
         <View className="max-w-[1180px] mx-auto">
           <SectionHeading
             eyebrow="Por que a SmokeBuzz"
@@ -289,7 +368,7 @@ export default function HomeScreen({
       <RopeDivider />
 
       {/* LOCALIZAÇÃO */}
-      <View className={`${sectionPad} px-7`}>
+      <View className={`${sectionPad} px-7`} onLayout={(e) => onSectionLayout("localizacao", e)}>
         <View className="max-w-[1180px] mx-auto flex-row gap-[50px] flex-wrap" style={{ alignItems: "flex-start" }}>
           <View className="flex-1 min-w-[280px]">
             <View style={{ marginBottom: 30 }}>
@@ -344,7 +423,7 @@ export default function HomeScreen({
       <RopeDivider />
 
       {/* CONTATO */}
-      <View className={`bg-espresso ${sectionPad} px-7 items-center`}>
+      <View className={`bg-espresso ${sectionPad} px-7 items-center`} onLayout={(e) => onSectionLayout("contato", e)}>
         <View className="max-w-[1180px] mx-auto items-center">
           <View className="max-w-[600px] mb-11 items-center">
             <SectionHeading
@@ -354,10 +433,10 @@ export default function HomeScreen({
             />
           </View>
           <View className="flex-row gap-[18px] flex-wrap justify-center">
-            <BrassButton label="Chamar no Direct" onPress={() => {}} />
+            <BrassButton label="Chamar no Direct" onPress={() => Linking.openURL("https://instagram.com/smokebuzztabacaria")} />
             <BrassButton
               label="Enviar e-mail"
-              onPress={() => {}}
+              onPress={() => Linking.openURL("mailto:contato@smokebuzz.com.br")}
               variant="ghost"
             />
           </View>
@@ -383,10 +462,18 @@ export default function HomeScreen({
               </View>
             </View>
             <View className="flex-row gap-[22px]">
-              <Text className="text-cream font-jost text-sm">Produtos</Text>
-              <Text className="text-cream font-jost text-sm">Sobre</Text>
-              <Text className="text-cream font-jost text-sm">Localização</Text>
-              <Text className="text-cream font-jost text-sm">Contato</Text>
+              <Pressable onPress={() => handleScrollTo("categorias")}>
+                <Text className="text-cream font-jost text-sm">Produtos</Text>
+              </Pressable>
+              <Pressable onPress={() => handleScrollTo("sobre")}>
+                <Text className="text-cream font-jost text-sm">Sobre</Text>
+              </Pressable>
+              <Pressable onPress={() => handleScrollTo("localizacao")}>
+                <Text className="text-cream font-jost text-sm">Localização</Text>
+              </Pressable>
+              <Pressable onPress={() => handleScrollTo("contato")}>
+                <Text className="text-cream font-jost text-sm">Contato</Text>
+              </Pressable>
             </View>
           </View>
           <Text className="text-cream-dim font-jost text-xs text-center opacity-70 mt-[26px] tracking-[0.3px]">
@@ -395,5 +482,52 @@ export default function HomeScreen({
         </View>
       </View>
     </ScrollView>
+  );
+}
+
+function ProductCard({
+  item,
+  addToCart,
+  isMobile,
+}: {
+  item: Product;
+  addToCart: (product: Product) => void;
+  isMobile: boolean;
+}) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <Animated.View style={{ transform: [{ translateY: hovered ? -6 : 0 }] }}>
+      <View
+        className={`bg-noir border rounded-lg overflow-hidden flex-1 min-w-[140px] ${hovered ? "border-brass" : "border-line"}`}
+        style={{ width: isMobile ? "calc(50% - 12px)" : "calc(25% - 18px)" }}
+        {...({ onMouseEnter: () => setHovered(true), onMouseLeave: () => setHovered(false) } as any)}
+      >
+        <View className="bg-white aspect-square p-[18px] items-center justify-center">
+          {typeof item.image === "string" ? (
+            <Text className="text-5xl">{item.image}</Text>
+          ) : (
+            <Image
+              source={item.image}
+              className="w-full h-full object-contain"
+              resizeMode="contain"
+            />
+          )}
+        </View>
+        <View className="p-5 pb-6">
+          <Text className="text-brass-light font-rye text-base leading-tight mb-2">
+            {item.name}
+          </Text>
+          <Text className="text-cream font-rye text-lg mb-3">
+            R$ {item.price.toFixed(2).replace('.', ',')}
+          </Text>
+          {altTexts[item.id] && (
+            <Text className="text-cream-dim font-jost text-xs tracking-[0.3px] mt-1">
+              {altTexts[item.id]}
+            </Text>
+          )}
+          <BrassButton label="Adicionar" size="sm" onPress={() => addToCart(item)} />
+        </View>
+      </View>
+    </Animated.View>
   );
 }
