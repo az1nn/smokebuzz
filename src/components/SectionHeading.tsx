@@ -9,11 +9,11 @@ type Props = {
 
 export default function SectionHeading({ eyebrow, title, description }: Props) {
   const { width } = useWindowDimensions();
-  const h2Size = width < 560 ? "text-3xl" : width < 900 ? "text-4xl" : "text-5xl";
+  const h2Size = width < 560 ? "text-[30.4px]" : width < 900 ? "text-[36px]" : "text-[44.8px]";
   return (
     <View className="mb-[56px]">
       {eyebrow && (
-        <Text className="text-brass uppercase text-xs tracking-[3px] mb-[14px] font-jost">
+        <Text className="text-brass uppercase text-[12.48px] tracking-[3px] mb-[14px] font-jost">
           {eyebrow}
         </Text>
       )}

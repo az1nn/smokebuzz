@@ -60,16 +60,28 @@ function TabBar({
 function AppInner() {
   const { itemCount } = useCart();
   const [screen, setScreen] = useState<Screen>("home");
+  const [scrollToSection, setScrollToSection] = useState<string | null>(null);
+  const [scrollSignal, setScrollSignal] = useState(0);
 
   const handleTab = useCallback((newScreen: Screen) => {
     setScreen(newScreen);
   }, []);
 
+  const handleNavPress = useCallback((section: string) => {
+    setScreen("home");
+    setScrollToSection(section);
+    setScrollSignal((prev) => prev + 1);
+  }, []);
+
   return (
     <View className="flex-1 bg-noir">
-      <StickyHeader />
+      <StickyHeader onNavPress={handleNavPress} />
       {screen === "home" && (
-        <HomeScreen onNavigateProducts={() => setScreen("products")} />
+        <HomeScreen
+          onNavigateProducts={() => setScreen("products")}
+          scrollToSection={scrollToSection}
+          scrollSignal={scrollSignal}
+        />
       )}
       {screen === "products" && (
         <ProductsScreen onNavigateCart={() => setScreen("cart")} />

@@ -35,8 +35,12 @@ const altTexts: Record<string, string> = {
 
 export default function HomeScreen({
   onNavigateProducts,
+  scrollToSection,
+  scrollSignal,
 }: {
   onNavigateProducts: () => void;
+  scrollToSection?: string | null;
+  scrollSignal?: number;
 }) {
   const floatAnim = useRef(new Animated.Value(0)).current;
   const wisp1Anim = useRef(new Animated.Value(0)).current;
@@ -59,6 +63,12 @@ export default function HomeScreen({
     const y = event.nativeEvent.layout.y;
     sectionY.current[section] = y;
   }, []);
+
+  useEffect(() => {
+    if (scrollToSection) {
+      handleScrollTo(scrollToSection);
+    }
+  }, [scrollSignal, scrollToSection, handleScrollTo]);
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -199,7 +209,7 @@ export default function HomeScreen({
           style={{ maxWidth: 1180, flexDirection: isMobile ? "column-reverse" : "row" }}
         >
           <View className={isMobile ? "items-center" : "flex-1"}>
-            <Text className="text-brass uppercase text-xs tracking-[3px] mb-[18px] font-jost">
+            <Text className="text-brass uppercase text-[12.48px] tracking-[3px] mb-[18px] font-jost">
               Tabacaria · Desde 2026 · Rio de Janeiro
             </Text>
             <Text className={`text-brass-light font-rye ${isMobile ? "text-5xl text-center" : "text-7xl"} mb-[18px]`}>
@@ -271,7 +281,7 @@ export default function HomeScreen({
               <View className="items-center">
                 <Text className="text-brass-light font-rye text-[30.4px]">6+</Text>
                 <Text className="text-cream-dim font-jost text-xs uppercase tracking-[0.5px]">
-                  Categorias de produtos
+                  Categorias
                 </Text>
               </View>
               <View className="items-center">
@@ -517,7 +527,7 @@ function ProductCard({
           <Text className="text-brass-light font-rye text-base leading-tight mb-2">
             {item.name}
           </Text>
-          <Text className="text-cream font-rye text-lg mb-3">
+          <Text className="text-cream font-rye text-[18.4px] mb-3">
             R$ {item.price.toFixed(2).replace('.', ',')}
           </Text>
           {altTexts[item.id] && (

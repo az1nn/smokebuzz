@@ -48,7 +48,7 @@ export default function CartScreen({
               <Text className="text-cream font-rye text-base">
                 {item.product.name}
               </Text>
-              <Text className="text-brass font-rye text-base">
+              <Text className="text-brass font-rye text-[18.4px]">
                 R$ {item.product.price.toFixed(2).replace('.', ',')}
               </Text>
               <View className="flex-row items-center mt-2">

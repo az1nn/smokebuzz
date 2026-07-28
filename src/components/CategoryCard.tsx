@@ -19,7 +19,7 @@ export default function CategoryCard({ icon, title, description }: Props) {
         <Text className="text-brass-light font-rye text-xl mb-[10px]">
           {title}
         </Text>
-        <Text className="text-cream-dim font-jost text-sm leading-[1.55] font-light">
+        <Text className="text-cream-dim font-jost text-[14.72px] leading-[1.55] font-light">
           {description}
         </Text>
       </View>

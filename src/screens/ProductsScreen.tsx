@@ -92,7 +92,7 @@ export default function ProductsScreen({
             <Text className="text-brass-light font-rye text-base leading-tight mb-2">
               {item.name}
             </Text>
-            <Text className="text-cream font-rye text-lg mb-3">
+            <Text className="text-cream font-rye text-[18.4px] mb-3">
               R$ {item.price.toFixed(2).replace('.', ',')}
             </Text>
             {altTexts[item.id] && (

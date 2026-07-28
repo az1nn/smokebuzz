@@ -29,12 +29,24 @@ function NavLink({
   );
 }
 
-export default function StickyHeader() {
+export default function StickyHeader({
+  onNavPress,
+}: {
+  onNavPress?: (section: string) => void;
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const { width } = useWindowDimensions();
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
+
+  const sectionMap: Record<string, string> = {
+    destaques: "destaques",
+    produtos: "categorias",
+    sobre: "sobre",
+    localizacao: "localizacao",
+    contato: "contato",
+  };
 
   const navLinks = [
     { key: "destaques", label: "Destaques" },
@@ -50,7 +62,12 @@ export default function StickyHeader() {
       style={{
         paddingTop: 14,
         paddingBottom: 14,
-        ...(Platform.OS === "web" ? { backdropFilter: "blur(8px)" } : {}),
+        ...(Platform.OS === "web" ? {
+          backdropFilter: "blur(8px)",
+          position: "sticky" as any,
+          top: 0,
+          zIndex: 50,
+        } : {}),
       } as any}
     >
       <View className="max-w-[1180px] mx-auto flex-row items-center justify-between">
@@ -69,6 +86,7 @@ export default function StickyHeader() {
                 label={link.label}
                 hovered={hoveredLink === link.key}
                 onHover={(v) => setHoveredLink(v ? link.key : null)}
+                onPress={() => onNavPress?.(sectionMap[link.key])}
               />
             ))}
             <BrassButton
@@ -88,7 +106,7 @@ export default function StickyHeader() {
         <View className="mt-4 pt-4 border-t border-line">
           <View className="gap-4">
             {navLinks.map((link) => (
-              <Pressable key={link.key} onPress={() => {}}>
+              <Pressable key={link.key} onPress={() => { onNavPress?.(sectionMap[link.key]); setMenuOpen(false); }}>
                 <Text className="text-cream-dim text-sm font-jost tracking-[0.4px]">
                   {link.label}
                 </Text>
