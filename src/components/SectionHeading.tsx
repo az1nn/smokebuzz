@@ -9,7 +9,7 @@ type Props = {
 
 export default function SectionHeading({ eyebrow, title, description }: Props) {
   const { width } = useWindowDimensions();
-  const h2Size = width < 560 ? "text-[30.4px]" : width < 900 ? "text-[36px]" : "text-[44.8px]";
+  const h2Size = Math.min(Math.max(width * 0.034, 30.4), 44.8);
   return (
     <View className="mb-[56px]">
       {eyebrow && (
@@ -17,9 +17,9 @@ export default function SectionHeading({ eyebrow, title, description }: Props) {
           {eyebrow}
         </Text>
       )}
-      <Text className={`text-brass-light font-rye ${h2Size} mb-4`}>{title}</Text>
+      <Text className="text-brass-light font-rye mb-4 tracking-[0.5px]" style={{ fontSize: h2Size }}>{title}</Text>
       {description && (
-        <Text className="text-cream-dim mt-4 font-cormorant text-[19.2px] leading-relaxed">
+        <Text className="text-cream-dim font-cormorant text-[19.2px] leading-[1.55]">
           {description}
         </Text>
       )}

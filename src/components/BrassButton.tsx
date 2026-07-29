@@ -17,22 +17,22 @@ export default function BrassButton({
   className = "",
 }: Props) {
   const [hovered, setHovered] = useState(false);
-  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const translateYAnim = useRef(new Animated.Value(0)).current;
 
   const handlePressIn = useCallback(() => {
-    Animated.spring(scaleAnim, {
-      toValue: 0.97,
+    Animated.spring(translateYAnim, {
+      toValue: -1,
       useNativeDriver: Platform.OS !== "web",
     }).start();
-  }, [scaleAnim]);
+  }, [translateYAnim]);
 
   const handlePressOut = useCallback(() => {
-    Animated.spring(scaleAnim, {
-      toValue: 1,
+    Animated.spring(translateYAnim, {
+      toValue: 0,
       friction: 5,
       useNativeDriver: Platform.OS !== "web",
     }).start();
-  }, [scaleAnim]);
+  }, [translateYAnim]);
 
   const sizeClass = size === "sm" ? "px-4 py-2" : "px-[22px] py-[11px]";
   const textSize = size === "sm" ? "text-xs" : "text-sm";
@@ -44,7 +44,7 @@ export default function BrassButton({
   const textGhost = `text-cream uppercase ${textSize} tracking-[0.8px] ${hovered ? "text-noir" : ""}`;
 
   return (
-    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+    <Animated.View style={{ transform: [{ translateY: translateYAnim }] }}>
       <Pressable
         onPress={onPress}
         onPressIn={handlePressIn}

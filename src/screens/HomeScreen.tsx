@@ -47,6 +47,7 @@ export default function HomeScreen({
   const wisp2Anim = useRef(new Animated.Value(0.5)).current;
   const wisp3Anim = useRef(new Animated.Value(0.5)).current;
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const scrollRef = useRef<ScrollView>(null);
   const sectionY = useRef<Record<string, number>>({});
   const { products } = useProducts();
@@ -163,6 +164,7 @@ export default function HomeScreen({
   const { width } = Dimensions.get("window");
   const isMobile = width < 900;
   const sectionPad = width <= 560 ? "py-[72px]" : "py-[104px]";
+  const h1Size = Math.min(Math.max(width * 0.06, 41.6), 73.6);
   const badgeSize = Math.min(360, width * 0.8);
   const wisp1Style = wispInterpolate(wisp1Anim);
   const wisp2Style = wispInterpolate(wisp2Anim);
@@ -212,11 +214,14 @@ export default function HomeScreen({
             <Text className="text-brass uppercase text-[12.48px] tracking-[3px] mb-[18px] font-jost">
               Tabacaria · Desde 2026 · Rio de Janeiro
             </Text>
-            <Text className={`text-brass-light font-rye ${isMobile ? "text-5xl text-center" : "text-7xl"} mb-[18px]`}>
+            <Text
+              className="text-brass-light font-rye mb-[18px]"
+              style={{ fontSize: h1Size, ...(isMobile ? { textAlign: "center" } : {}) }}
+            >
               Bem-vindo à{"\n"}SmokeBuzz
             </Text>
             <Text
-              className={`text-cream-dim font-cormorant text-[21.6px] ${isMobile ? "text-center" : ""} leading-[1.5] mb-[34px]`}
+              className={`text-cream-dim font-cormorant italic text-[21.6px] ${isMobile ? "text-center" : ""} leading-[1.5] mb-[34px]`}
               style={{ maxWidth: "46ch" as any }}
             >
               Charutos, tabacos e acessórios selecionados para quem aprecia cada baforada. Atendemos toda a cidade do Rio de Janeiro, com pedidos direto pelo Instagram.
@@ -236,7 +241,6 @@ export default function HomeScreen({
               style={[
                 {
                   width: badgeSize,
-                  borderRadius: 9999,
                   transform: [{ translateY: floatAnim }],
                 },
                 Platform.OS === "web"
@@ -274,19 +278,19 @@ export default function HomeScreen({
             <View className="flex-row gap-[42px] mt-9 flex-wrap">
               <View className="items-center">
                 <Text className="text-brass-light font-rye text-[30.4px]">2026</Text>
-                <Text className="text-cream-dim font-jost text-xs uppercase tracking-[0.5px]">
+                <Text className="text-cream-dim font-jost text-[13.12px] uppercase tracking-[0.5px]">
                   Ano de fundação
                 </Text>
               </View>
               <View className="items-center">
                 <Text className="text-brass-light font-rye text-[30.4px]">6+</Text>
-                <Text className="text-cream-dim font-jost text-xs uppercase tracking-[0.5px]">
+                <Text className="text-cream-dim font-jost text-[13.12px] uppercase tracking-[0.5px]">
                   Categorias
                 </Text>
               </View>
               <View className="items-center">
                 <Text className="text-brass-light font-rye text-[30.4px]">100%</Text>
-                <Text className="text-cream-dim font-jost text-xs uppercase tracking-[0.5px]">
+                <Text className="text-cream-dim font-jost text-[13.12px] uppercase tracking-[0.5px]">
                   Atendimento presencial
                 </Text>
               </View>
@@ -463,30 +467,30 @@ export default function HomeScreen({
                 className="w-9 h-9 rounded-full"
               />
               <View>
-                <Text className="text-cream font-rye text-base">
+                <Text className="text-cream font-rye text-[18.4px]">
                   SmokeBuzz Tabacaria
                 </Text>
-                <Text className="text-cream-dim font-jost text-xs tracking-[0.3px]">
+                <Text className="text-cream-dim font-jost text-[12.48px] tracking-[0.3px]">
                   Since 2026
                 </Text>
               </View>
             </View>
             <View className="flex-row gap-[22px]">
-              <Pressable onPress={() => handleScrollTo("categorias")}>
-                <Text className="text-cream font-jost text-sm">Produtos</Text>
+              <Pressable {...({ onMouseEnter: () => setHoveredLink("categorias"), onMouseLeave: () => setHoveredLink(null) } as any)} onPress={() => handleScrollTo("categorias")}>
+                <Text className={`font-jost text-[13.6px] ${hoveredLink === "categorias" ? "text-brass-light" : "text-cream"}`}>Produtos</Text>
               </Pressable>
-              <Pressable onPress={() => handleScrollTo("sobre")}>
-                <Text className="text-cream font-jost text-sm">Sobre</Text>
+              <Pressable {...({ onMouseEnter: () => setHoveredLink("sobre"), onMouseLeave: () => setHoveredLink(null) } as any)} onPress={() => handleScrollTo("sobre")}>
+                <Text className={`font-jost text-[13.6px] ${hoveredLink === "sobre" ? "text-brass-light" : "text-cream"}`}>Sobre</Text>
               </Pressable>
-              <Pressable onPress={() => handleScrollTo("localizacao")}>
-                <Text className="text-cream font-jost text-sm">Localização</Text>
+              <Pressable {...({ onMouseEnter: () => setHoveredLink("localizacao"), onMouseLeave: () => setHoveredLink(null) } as any)} onPress={() => handleScrollTo("localizacao")}>
+                <Text className={`font-jost text-[13.6px] ${hoveredLink === "localizacao" ? "text-brass-light" : "text-cream"}`}>Localização</Text>
               </Pressable>
-              <Pressable onPress={() => handleScrollTo("contato")}>
-                <Text className="text-cream font-jost text-sm">Contato</Text>
+              <Pressable {...({ onMouseEnter: () => setHoveredLink("contato"), onMouseLeave: () => setHoveredLink(null) } as any)} onPress={() => handleScrollTo("contato")}>
+                <Text className={`font-jost text-[13.6px] ${hoveredLink === "contato" ? "text-brass-light" : "text-cream"}`}>Contato</Text>
               </Pressable>
             </View>
           </View>
-          <Text className="text-cream-dim font-jost text-xs text-center opacity-70 mt-[26px] tracking-[0.3px]">
+          <Text className="text-cream-dim font-jost text-[11.52px] text-center opacity-70 mt-[26px] tracking-[0.3px]">
             Venda destinada exclusivamente a maiores de 18 anos. © 2026 SmokeBuzz Tabacaria. Todos os direitos reservados.
           </Text>
         </View>
@@ -524,10 +528,10 @@ function ProductCard({
           )}
         </View>
         <View className="p-5 pb-6">
-          <Text className="text-brass-light font-rye text-base leading-tight mb-2">
+          <Text className="text-brass-light font-rye text-[16.8px] leading-[1.3] mb-2">
             {item.name}
           </Text>
-          <Text className="text-cream font-rye text-[18.4px] mb-3">
+          <Text className="text-cream font-rye text-[18.4px] m-0">
             R$ {item.price.toFixed(2).replace('.', ',')}
           </Text>
           {altTexts[item.id] && (

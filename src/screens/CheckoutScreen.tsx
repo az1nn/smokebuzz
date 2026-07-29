@@ -178,7 +178,7 @@ export default function CheckoutScreen({
             <View className="flex-row justify-between mt-3 pt-3 border-t border-line">
               <Text className="text-cream font-rye text-lg">Total</Text>
               <Text className="text-brass font-rye text-lg">
-                R$ {total.toFixed(2)}
+                R$ {total.toFixed(2).replace('.', ',')}
               </Text>
             </View>
           </View>

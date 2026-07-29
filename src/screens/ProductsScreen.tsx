@@ -89,10 +89,10 @@ export default function ProductsScreen({
             )}
           </View>
           <View className="p-5 pb-6">
-            <Text className="text-brass-light font-rye text-base leading-tight mb-2">
+            <Text className="text-brass-light font-rye text-[16.8px] leading-[1.3] mb-2">
               {item.name}
             </Text>
-            <Text className="text-cream font-rye text-[18.4px] mb-3">
+            <Text className="text-cream font-rye text-[18.4px] m-0">
               R$ {item.price.toFixed(2).replace('.', ',')}
             </Text>
             {altTexts[item.id] && (
@@ -118,11 +118,11 @@ export default function ProductsScreen({
           title="Categorias"
           description="Uma seleção pensada para todo tipo de fumante — do iniciante ao mais exigente."
         />
-        <View className="flex-row flex-wrap">
+        <View className="flex-row flex-wrap" style={{ gap: 24 }}>
           {categorias.map((cat) => (
             <View
               key={cat.title}
-              className={width > 900 ? "w-1/3 p-3" : width > 560 ? "w-1/2 p-3" : "w-full p-3"}
+              className={width > 900 ? "w-[calc(33.333%-16px)]" : width > 560 ? "w-[calc(50%-12px)]" : "w-full"}
             >
               <CategoryCard
                 icon={

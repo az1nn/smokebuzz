@@ -19,7 +19,7 @@ function NavLink({
       {...({ onMouseEnter: () => onHover(true), onMouseLeave: () => onHover(false) } as any)}
     >
       <Text
-        className={`text-sm font-jost tracking-[0.4px] transition-colors duration-200 ${
+        className={`text-[14.72px] font-jost tracking-[0.4px] transition-colors duration-200 ${
           hovered ? "text-brass-light" : "text-cream-dim opacity-[0.85]"
         }`}
       >
@@ -76,7 +76,7 @@ export default function StickyHeader({
             source={require("../../assets/logosmokebuzz-transparent.png")}
             className="w-11 h-11 rounded-full"
           />
-          <Text className="text-cream text-lg font-rye">SmokeBuzz</Text>
+          <Text className="text-cream text-[18.4px] font-rye">SmokeBuzz</Text>
         </View>
         {Platform.OS === "web" && width > 900 && (
           <View className="flex-row gap-7 items-center">
@@ -98,7 +98,7 @@ export default function StickyHeader({
         )}
         {width <= 900 && (
           <Pressable onPress={toggleMenu} className="p-2">
-            <Text className="text-cream text-2xl">{menuOpen ? "✕" : "☰"}</Text>
+            <Text className="text-cream text-[25.6px]">{menuOpen ? "✕" : "☰"}</Text>
           </Pressable>
         )}
       </View>
