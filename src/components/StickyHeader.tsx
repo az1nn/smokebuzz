@@ -103,20 +103,25 @@ export default function StickyHeader({
         )}
       </View>
       {menuOpen && width <= 900 && (
-        <View className="mt-4 pt-4 border-t border-line">
-          <View className="gap-4">
+        <View
+          className="border-b border-line pt-6 pb-6 px-0"
+          style={Platform.OS === "web" ? { background: "rgba(12,10,8,0.98)" } : { backgroundColor: "#0c0a08" }}
+        >
+          <View className="gap-5">
             {navLinks.map((link) => (
               <Pressable key={link.key} onPress={() => { onNavPress?.(sectionMap[link.key]); setMenuOpen(false); }}>
-                <Text className="text-cream-dim text-sm font-jost tracking-[0.4px]">
+                <Text className="text-cream-dim text-[14.72px] font-jost tracking-[0.4px] opacity-[0.85]">
                   {link.label}
                 </Text>
               </Pressable>
             ))}
-            <BrassButton
-              label="Chamar no Direct"
-              variant="solid"
-              onPress={() => Linking.openURL("https://instagram.com/smokebuzztabacaria")}
-            />
+            <View className="pt-2">
+              <BrassButton
+                label="Chamar no Direct"
+                variant="solid"
+                onPress={() => Linking.openURL("https://instagram.com/smokebuzztabacaria")}
+              />
+            </View>
           </View>
         </View>
       )}
