@@ -29,4 +29,8 @@ Headless Edge diagnostics against the built `dist/` (1280×900 and 390×844) pro
 
 ## Status
 
-Proposed. Awaiting approval before implementation.
+Implemented and verified. `ScreenTransition` root `Animated.View` now carries `flex: 1` in both the animated and reduced-motion paths. Headless Edge probe (desktop 1280×900 + mobile 390×844) confirms: single internal ScrollView restored, wheel scroll moves `scrollTop`, tab bar pinned within the viewport (desktop top 857/900, mobile 801/844), real tab click reaches the cart empty state, mobile hamburger + "Sobre" nav scroll works, zero console/page errors.
+
+Commits:
+- `0d0d756` — spec: screen-transition-flex-fix — restore bounded-height scroll chain
+- (implementation commit follows)

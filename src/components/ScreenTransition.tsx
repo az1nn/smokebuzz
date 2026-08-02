@@ -26,11 +26,11 @@ export function ScreenTransition({ children }: { children: ReactNode }) {
   }, [reduced, opacity, translateY]);
 
   if (reduced) {
-    return <Animated.View>{children}</Animated.View>;
+    return <Animated.View style={{ flex: 1 }}>{children}</Animated.View>;
   }
 
   return (
-    <Animated.View style={{ opacity, transform: [{ translateY }] }}>
+    <Animated.View style={{ flex: 1, opacity, transform: [{ translateY }] }}>
       {children}
     </Animated.View>
   );

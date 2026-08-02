@@ -36,7 +36,7 @@ Documento vivo que registra as mudanças de visual/layout do design system. **Co
 - `Container` — limita largura (`maxWidth` 1180, `paddingX` 28, `w-full mx-auto`)
 - `ProductCard` — card de produto compartilhado (foto, nome, preço, botão "Adicionar")
 - `AppPressable` — wrapper de press feedback (`scale`/`dim`) sobre `Pressable`
-- `ScreenTransition` — transição de entrada por tela (fade 220ms + rise 280ms)
+- `ScreenTransition` — transição de entrada por tela (fade 220ms + rise 280ms); raiz com `flex: 1` para preservar a cadeia de altura e o scroll interno das telas
 - `Reveal` — entrada por scroll (`IntersectionObserver` no web; fallback nativo)
 - `ProductCardSkeleton` — placeholder shimmer idêntico ao `ProductCard`
 
