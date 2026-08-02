@@ -56,5 +56,5 @@ Audit findings (from `src/` exploration + spec history):
 Implementation complete (waves A-D). All non-goals above were respected (no new dependencies, no backend/payment, no nav library, no token changes).
 
 Commits:
-- `____COMMIT1____` — feat: ui-polish-v1 — responsive rigor, motion system, state polish, accessibility
-- `____COMMIT2____` — docs: security keys & env vars policy + ignore .env
+- `7bc5fee` — feat: ui-polish-v1 — responsive rigor, motion system, state polish, accessibility
+- `9bceea1` — docs: security keys & env vars policy + ignore .env
