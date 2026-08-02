@@ -6,6 +6,8 @@ dist/
 tmp/
 dist/
 build/
+# Arquivos de ambiente — nunca versionar
+.env
 .env.local
 .env.development.local
 .env.test.local
