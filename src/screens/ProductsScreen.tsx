@@ -1,62 +1,27 @@
-import React, { useState } from "react";
-import Svg, { Path, Rect, Circle } from "react-native-svg";
-import { View, Text, FlatList, Image, ScrollView, useWindowDimensions, Animated } from "react-native";
+import { View, Text, FlatList, ScrollView } from "react-native";
 import { useProducts } from "../hooks/useProducts";
 import { useAddToCart } from "../hooks/useAddToCart";
-import { Product } from "../types";
+import { useBreakpoints, prodCols } from "../hooks/useBreakpoints";
 import SectionHeading from "../components/SectionHeading";
-import BrassButton from "../components/BrassButton";
 import CategoryCard from "../components/CategoryCard";
 import RopeDivider from "../components/RopeDivider";
+import ProductCard from "../components/ProductCard";
+import Container from "../components/Container";
+import { categorias, renderIcon } from "../data/categories";
+import { productAlt } from "../data/products";
+import strings from "../strings";
+import { Product } from "../types";
 
-const altTexts: Record<string, string> = {
-  "1": "Avulsa por R$ 1,00",
-  "2": "Avulsa por R$ 1,50",
-};
-
-export const categorias = [
-  { title: "Charutos", description: "Linha selecionada de charutos nacionais e importados, para todos os paladares." },
-  { title: "Cigarros", description: "Principais marcas do mercado, sempre com estoque em dia." },
-  { title: "Sedas & Piteiras", description: "Sedas de diversas marcas e piteiras em vidro, metal e madeira." },
-  { title: "Tabacos", description: "Tabacos soltos e para cachimbo, com origem e curas variadas." },
-  { title: "Acessórios para fumo", description: "Cortadores, cinzeiros, humidores e tudo que compõe o ritual." },
-  { title: "Isqueiros", description: "Do básico ao colecionável — sempre um isqueiro à altura do momento." },
-];
-
-export function renderIcon(title: string) {
-  const props = { width: 44, height: 44, viewBox: "0 0 48 48", fill: "none", stroke: "#e6c878", strokeWidth: 1.6 };
-  switch (title) {
-    case "Charutos":
-      return <Svg {...props}><Rect x="4" y="21" width="34" height="7" rx="3.5"/><Path d="M38 24h4a2 2 0 0 1 0 6l-4-1"/></Svg>;
-    case "Cigarros":
-      return <Svg {...props}><Rect x="10" y="6" width="10" height="36" rx="4"/><Path d="M13 6c0-2 1-4 2-4s2 2 2 4"/></Svg>;
-    case "Sedas & Piteiras":
-      return <Svg {...props}><Rect x="6" y="14" width="30" height="20" rx="2"/><Path d="M6 20h30M6 28h30"/></Svg>;
-    case "Tabacos":
-      return <Svg {...props}><Path d="M14 40c-4-8-2-16 4-22 3 4 3 8 1 11 5-1 8-6 7-12 6 5 8 14 3 21-3 4-9 5-15 2z"/></Svg>;
-    case "Acessórios para fumo":
-      return <Svg {...props}><Circle cx="24" cy="24" r="16"/><Path d="M24 14v10l7 4"/></Svg>;
-    case "Isqueiros":
-      return <Svg {...props}><Rect x="16" y="16" width="16" height="24" rx="3"/><Path d="M20 16c0-4 2-8 4-8s4 4 4 8"/></Svg>;
-    default:
-      return null;
-  }
-}
-
-export default function ProductsScreen({
-  onNavigateCart,
-}: {
-  onNavigateCart: () => void;
-}) {
+export default function ProductsScreen() {
   const { products, loading, error } = useProducts();
   const { addToCart } = useAddToCart();
-  const { width } = useWindowDimensions();
-  const numColumns = width > 900 ? 4 : 2;
+  const { isDesktop, isMobile } = useBreakpoints();
+  const numColumns = prodCols(isDesktop);
 
   if (loading) {
     return (
       <View className="flex-1 bg-noir items-center justify-center">
-        <Text className="text-cream-dim text-lg">Loading products...</Text>
+        <Text className="text-cream-dim text-lg">{strings.productsLoading}</Text>
       </View>
     );
   }
@@ -64,55 +29,19 @@ export default function ProductsScreen({
   if (error) {
     return (
       <View className="flex-1 bg-noir items-center justify-center">
-        <Text className="text-ember text-lg">Failed to load products</Text>
+        <Text className="text-ember text-lg">{strings.productsLoadFailed}</Text>
       </View>
     );
   }
 
-  function ProductCard({ item }: { item: Product }) {
-    const [hovered, setHovered] = useState(false);
-    return (
-      <Animated.View style={{ transform: [{ translateY: hovered ? -6 : 0 }] }}>
-        <View
-          className={`bg-noir border rounded-lg overflow-hidden flex-1 min-w-[140px] ${hovered ? "border-brass" : "border-line"}`}
-          {...({ onMouseEnter: () => setHovered(true), onMouseLeave: () => setHovered(false) } as any)}
-        >
-          <View className="bg-white aspect-square p-[18px] items-center justify-center">
-            {typeof item.image === "string" ? (
-              <Text className="text-5xl">{item.image}</Text>
-            ) : (
-              <Image
-                source={item.image}
-                className="w-full h-full object-contain"
-                resizeMode="contain"
-              />
-            )}
-          </View>
-          <View className="p-5 pb-6">
-            <Text className="text-brass-light font-rye text-[16.8px] leading-[1.3] mb-2">
-              {item.name}
-            </Text>
-            <Text className="text-cream font-rye text-[18.4px] m-0">
-              R$ {item.price.toFixed(2).replace('.', ',')}
-            </Text>
-            {altTexts[item.id] && (
-              <Text className="text-cream-dim font-jost text-xs tracking-[0.3px] mt-1">
-                {altTexts[item.id]}
-              </Text>
-            )}
-            <BrassButton label="Adicionar" size="sm" onPress={() => addToCart(item)} />
-          </View>
-        </View>
-      </Animated.View>
-    );
-  }
-
-  const renderProduct = ({ item }: { item: Product }) => <ProductCard item={item} />;
+  const renderProduct = ({ item }: { item: Product }) => (
+    <ProductCard product={item} altText={productAlt[item.id]} onAdd={() => addToCart(item)} />
+  );
 
   const renderFooter = () => (
     <>
       <RopeDivider thin />
-      <View className="px-7 py-[104px]">
+      <View className="py-[104px]">
         <SectionHeading
           eyebrow="O que você encontra aqui"
           title="Categorias"
@@ -122,7 +51,7 @@ export default function ProductsScreen({
           {categorias.map((cat) => (
             <View
               key={cat.title}
-              className={width > 900 ? "w-[calc(33.333%-16px)]" : width > 560 ? "w-[calc(50%-12px)]" : "w-full"}
+              className={isDesktop ? "w-[calc(33.333%-16px)]" : isMobile ? "w-full" : "w-[calc(50%-12px)]"}
             >
               <CategoryCard
                 icon={
@@ -143,23 +72,25 @@ export default function ProductsScreen({
 
   return (
     <ScrollView className="flex-1 bg-espresso">
-      <View className="p-4 pt-12">
+      <Container className="pt-12">
         <SectionHeading
           eyebrow="Direto do estoque"
           title="Destaques da semana"
           description="Alguns dos itens mais pedidos no Direct — confirme disponibilidade antes de fechar o pedido."
         />
-      </View>
-      <FlatList
-        data={products}
-        renderItem={renderProduct}
-        keyExtractor={(item) => item.id}
-        numColumns={numColumns}
-        key={numColumns}
-        scrollEnabled={false}
-        contentContainerStyle={{ gap: 24, paddingLeft: 16, paddingRight: 16, paddingBottom: 16 }}
-        ListFooterComponent={renderFooter}
-      />
+      </Container>
+      <Container>
+        <FlatList
+          data={products}
+          renderItem={renderProduct}
+          keyExtractor={(item) => item.id}
+          numColumns={numColumns}
+          key={numColumns}
+          scrollEnabled={false}
+          contentContainerStyle={{ gap: 24, paddingBottom: 16 }}
+          ListFooterComponent={renderFooter}
+        />
+      </Container>
     </ScrollView>
   );
 }

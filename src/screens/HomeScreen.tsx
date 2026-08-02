@@ -1,14 +1,18 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { ScrollView, View, Text, Image, Animated, Dimensions, Platform, Linking, Pressable } from "react-native";
+import { ScrollView, View, Text, Image, Animated, Platform, Linking, Pressable, useWindowDimensions } from "react-native";
 import Svg, { Circle } from "react-native-svg";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import RopeDivider from "../components/RopeDivider";
 import SectionHeading from "../components/SectionHeading";
 import BrassButton from "../components/BrassButton";
+import CategoryCard from "../components/CategoryCard";
+import Container from "../components/Container";
+import ProductCard from "../components/ProductCard";
 import { useProducts } from "../hooks/useProducts";
 import { useAddToCart } from "../hooks/useAddToCart";
-import { Product } from "../types";
-import CategoryCard from "../components/CategoryCard";
-import { categorias, renderIcon } from "./ProductsScreen";
+import { useBreakpoints } from "../hooks/useBreakpoints";
+import { categorias, renderIcon } from "../data/categories";
+import { productAlt } from "../data/products";
 
 const diferenciais = [
   {
@@ -27,11 +31,6 @@ const diferenciais = [
     desc: "Um espaço pensado para quem gosta de tirar um tempo para escolher e experimentar com calma.",
   },
 ];
-
-const altTexts: Record<string, string> = {
-  "1": "Avulsa por R$ 1,00",
-  "2": "Avulsa por R$ 1,50",
-};
 
 export default function HomeScreen({
   onNavigateProducts,
@@ -52,6 +51,9 @@ export default function HomeScreen({
   const sectionY = useRef<Record<string, number>>({});
   const { products } = useProducts();
   const { addToCart } = useAddToCart();
+  const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const { isMobile, isTablet, isDesktop } = useBreakpoints();
 
   const handleScrollTo = useCallback((section: string) => {
     const y = sectionY.current[section];
@@ -161,9 +163,7 @@ export default function HomeScreen({
     ],
   });
 
-  const { width } = Dimensions.get("window");
-  const isMobile = width < 900;
-  const sectionPad = width <= 560 ? "py-[72px]" : "py-[104px]";
+  const sectionPad = isMobile ? "py-[72px]" : "py-[104px]";
   const h1Size = Math.min(Math.max(width * 0.06, 41.6), 73.6);
   const badgeSize = Math.min(360, width * 0.8);
   const wisp1Style = wispInterpolate(wisp1Anim);
@@ -174,10 +174,10 @@ export default function HomeScreen({
     <ScrollView ref={scrollRef} className="flex-1 bg-noir">
       {/* HERO */}
       <View
-        className="min-h-[92vh] items-center justify-center px-7 overflow-hidden"
+        className="min-h-[92vh] items-center justify-center overflow-hidden"
         style={{
           backgroundColor: "#0c0a08",
-          paddingTop: isMobile ? 20 : 16,
+          paddingTop: insets.top + (isMobile ? 8 : 0),
         }}
       >
         {/* BG gradients */}
@@ -206,27 +206,24 @@ export default function HomeScreen({
             <Circle cx="100" cy="100" r="50" fill="#d9622b" />
           </Svg>
         </Animated.View>
-        <View
-          className={`w-full ${isMobile ? "items-center" : "flex-row items-center gap-10"}`}
-          style={{ maxWidth: 1180, flexDirection: isMobile ? "column-reverse" : "row" }}
-        >
-          <View className={isMobile ? "items-center" : "flex-1"}>
+        <Container className={isTablet ? "items-center flex-col-reverse" : "flex-row items-center gap-10"}>
+          <View className={isTablet ? "items-center" : "flex-1"}>
             <Text className="text-brass uppercase text-[12.48px] tracking-[3px] mb-[18px] font-jost">
               Tabacaria · Desde 2026 · Rio de Janeiro
             </Text>
             <Text
               className="text-brass-light font-rye mb-[18px]"
-              style={{ fontSize: h1Size, ...(isMobile ? { textAlign: "center" } : {}) }}
+              style={{ fontSize: h1Size, ...(isTablet ? { textAlign: "center" } : {}) }}
             >
               Bem-vindo à{"\n"}SmokeBuzz
             </Text>
             <Text
-              className={`text-cream-dim font-cormorant italic text-[21.6px] ${isMobile ? "text-center" : ""} leading-[1.5] mb-[34px]`}
+              className={`text-cream-dim font-cormorant italic text-[21.6px] ${isTablet ? "text-center" : ""} leading-[1.5] mb-[34px]`}
               style={{ maxWidth: "46ch" as any }}
             >
               Charutos, tabacos e acessórios selecionados para quem aprecia cada baforada. Atendemos toda a cidade do Rio de Janeiro, com pedidos direto pelo Instagram.
             </Text>
-            <View className={`flex-row gap-4 flex-wrap ${isMobile ? "justify-center" : ""}`}>
+            <View className={`flex-row gap-4 flex-wrap ${isTablet ? "justify-center" : ""}`}>
               <BrassButton label="Ver produtos" onPress={onNavigateProducts} />
               <BrassButton
                 label="Pedir pelo Instagram"
@@ -256,14 +253,14 @@ export default function HomeScreen({
               resizeMode="contain"
             />
           </View>
-        </View>
+        </Container>
       </View>
 
       <RopeDivider />
 
       {/* SOBRE */}
-      <View className={`bg-espresso ${sectionPad} px-7`} onLayout={(e) => onSectionLayout("sobre", e)}>
-        <View className="max-w-[1180px] mx-auto flex-row gap-[60px] items-center flex-wrap">
+      <View className={`bg-espresso ${sectionPad}`} onLayout={(e) => onSectionLayout("sobre", e)}>
+        <Container className="flex-row gap-[60px] items-center flex-wrap">
           <Image
             source={require("../../assets/logosmokebuzz-hero.png")}
             className="w-full rounded-[6px] border border-line"
@@ -296,32 +293,34 @@ export default function HomeScreen({
               </View>
             </View>
           </View>
-        </View>
+        </Container>
       </View>
 
       <RopeDivider />
 
       {/* DESTAQUES */}
-      <View className={`bg-espresso ${sectionPad} px-7`} onLayout={(e) => onSectionLayout("destaques", e)}>
-        <View className="max-w-[1180px] mx-auto">
+      <View className={`bg-espresso ${sectionPad}`} onLayout={(e) => onSectionLayout("destaques", e)}>
+        <Container>
           <SectionHeading
             eyebrow="Direto do estoque"
             title="Destaques da semana"
             description="Alguns dos itens mais pedidos no Direct — confirme disponibilidade antes de fechar o pedido."
           />
-          <View className={`flex-row flex-wrap`} style={{ gap: 24 }}>
-            {products.slice(0, 4).map((item: Product) => (
-              <ProductCard key={item.id} item={item} addToCart={addToCart} isMobile={isMobile} />
+          <View className="flex-row flex-wrap" style={{ gap: 24 }}>
+            {products.slice(0, 4).map((item) => (
+              <View key={item.id} className={isDesktop ? "w-[calc(25%-18px)]" : "w-[calc(50%-12px)]"}>
+                <ProductCard product={item} altText={productAlt[item.id]} onAdd={() => addToCart(item)} />
+              </View>
             ))}
           </View>
-        </View>
+        </Container>
       </View>
 
       <RopeDivider thin />
 
       {/* CATEGORIAS */}
-      <View className={`${sectionPad} px-7`} onLayout={(e) => onSectionLayout("categorias", e)}>
-        <View className="max-w-[1180px] mx-auto">
+      <View className={sectionPad} onLayout={(e) => onSectionLayout("categorias", e)}>
+        <Container>
           <SectionHeading
             eyebrow="O que você encontra aqui"
             title="Categorias"
@@ -332,9 +331,9 @@ export default function HomeScreen({
               <View
                 key={cat.title}
                 className={
-                  width > 900 ? "w-[calc(33.333%-16px)]"
-                    : width > 560 ? "w-[calc(50%-12px)]"
-                    : "w-full"
+                  isDesktop ? "w-[calc(33.333%-16px)]"
+                    : isMobile ? "w-full"
+                    : "w-[calc(50%-12px)]"
                 }
               >
                 <CategoryCard
@@ -349,19 +348,19 @@ export default function HomeScreen({
               </View>
             ))}
           </View>
-        </View>
+        </Container>
       </View>
 
       <RopeDivider thin />
 
       {/* DIFERENCIAIS */}
-      <View className={`bg-espresso ${sectionPad} px-7`} onLayout={(e) => onSectionLayout("diferenciais", e)}>
-        <View className="max-w-[1180px] mx-auto">
+      <View className={`bg-espresso ${sectionPad}`} onLayout={(e) => onSectionLayout("diferenciais", e)}>
+        <Container>
           <SectionHeading
             eyebrow="Por que a SmokeBuzz"
             title="O que nos diferencia"
           />
-          <View className={`gap-10 ${isMobile ? "" : "flex-row"}`}>
+          <View className={`gap-10 ${isTablet ? "" : "flex-row"}`}>
             {diferenciais.map((item, i) => (
               <View key={i} className="flex-1">
                 <Text className="text-ember font-rye text-[17.6px]">
@@ -376,14 +375,14 @@ export default function HomeScreen({
               </View>
             ))}
           </View>
-        </View>
+        </Container>
       </View>
 
       <RopeDivider />
 
       {/* LOCALIZAÇÃO */}
-      <View className={`${sectionPad} px-7`} onLayout={(e) => onSectionLayout("localizacao", e)}>
-        <View className="max-w-[1180px] mx-auto flex-row gap-[50px] flex-wrap" style={{ alignItems: "flex-start" }}>
+      <View className={sectionPad} onLayout={(e) => onSectionLayout("localizacao", e)}>
+        <Container className="flex-row gap-[50px] flex-wrap items-start">
           <View className="flex-1 min-w-[280px]">
             <View style={{ marginBottom: 30 }}>
               <SectionHeading
@@ -431,14 +430,14 @@ export default function HomeScreen({
               Confirme a área e o prazo de entrega do seu bairro direto no Direct
             </Text>
           </View>
-        </View>
+        </Container>
       </View>
 
       <RopeDivider />
 
       {/* CONTATO */}
-      <View className={`bg-espresso ${sectionPad} px-7 items-center`} onLayout={(e) => onSectionLayout("contato", e)}>
-        <View className="max-w-[1180px] mx-auto items-center">
+      <View className={`bg-espresso ${sectionPad} items-center`} onLayout={(e) => onSectionLayout("contato", e)}>
+        <Container className="items-center">
           <View className="max-w-[600px] mb-11 items-center">
             <SectionHeading
               eyebrow="Fale com a gente"
@@ -454,12 +453,12 @@ export default function HomeScreen({
               variant="ghost"
             />
           </View>
-        </View>
+        </Container>
       </View>
 
       {/* FOOTER */}
-      <View className="bg-noir pt-11 pb-[30px] px-7 border-t border-line">
-        <View className="max-w-[1180px] mx-auto">
+      <View className="bg-noir pt-11 pb-[30px] border-t border-line">
+        <Container>
           <View className="flex-row justify-between items-center flex-wrap gap-5">
             <View className="flex-row items-center gap-3">
               <Image
@@ -493,55 +492,8 @@ export default function HomeScreen({
           <Text className="text-cream-dim font-jost text-[11.52px] text-center opacity-70 mt-[26px] tracking-[0.3px]">
             Venda destinada exclusivamente a maiores de 18 anos. © 2026 SmokeBuzz Tabacaria. Todos os direitos reservados.
           </Text>
-        </View>
+        </Container>
       </View>
     </ScrollView>
-  );
-}
-
-function ProductCard({
-  item,
-  addToCart,
-  isMobile,
-}: {
-  item: Product;
-  addToCart: (product: Product) => void;
-  isMobile: boolean;
-}) {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <Animated.View style={{ transform: [{ translateY: hovered ? -6 : 0 }] }}>
-      <View
-        className={`bg-noir border rounded-lg overflow-hidden flex-1 min-w-[140px] ${hovered ? "border-brass" : "border-line"}`}
-        style={{ width: isMobile ? "calc(50% - 12px)" : "calc(25% - 18px)" }}
-        {...({ onMouseEnter: () => setHovered(true), onMouseLeave: () => setHovered(false) } as any)}
-      >
-        <View className="bg-white aspect-square p-[18px] items-center justify-center">
-          {typeof item.image === "string" ? (
-            <Text className="text-5xl">{item.image}</Text>
-          ) : (
-            <Image
-              source={item.image}
-              className="w-full h-full object-contain"
-              resizeMode="contain"
-            />
-          )}
-        </View>
-        <View className="p-5 pb-6">
-          <Text className="text-brass-light font-rye text-[16.8px] leading-[1.3] mb-2">
-            {item.name}
-          </Text>
-          <Text className="text-cream font-rye text-[18.4px] m-0">
-            R$ {item.price.toFixed(2).replace('.', ',')}
-          </Text>
-          {altTexts[item.id] && (
-            <Text className="text-cream-dim font-jost text-xs tracking-[0.3px] mt-1">
-              {altTexts[item.id]}
-            </Text>
-          )}
-          <BrassButton label="Adicionar" size="sm" onPress={() => addToCart(item)} />
-        </View>
-      </View>
-    </Animated.View>
   );
 }

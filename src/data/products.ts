@@ -1,5 +1,10 @@
 import { Product } from "../types";
 
+export const productAlt: Record<string, string> = {
+  "1": "Avulsa por R$ 1,00",
+  "2": "Avulsa por R$ 1,50",
+};
+
 export const products: Product[] = [
   {
     id: "1",

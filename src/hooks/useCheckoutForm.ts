@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
+import strings from "../strings";
 
 type FormData = {
   cardNumber: string;
@@ -23,23 +24,19 @@ export function useCheckoutForm() {
   const validate = useCallback((data: FormData): Errors => {
     const newErrors: Errors = {};
     if (!data.cardNumber.replace(/\s/g, "").match(/^\d{16}$/)) {
-      newErrors.cardNumber = "Card number must be 16 digits";
+      newErrors.cardNumber = strings.cardNumberError;
     }
     if (!data.expiry.match(/^(0[1-9]|1[0-2])\/\d{2}$/)) {
-      newErrors.expiry = "Expiry must be MM/YY format";
+      newErrors.expiry = strings.expiryError;
     }
     if (!data.cvv.match(/^\d{3}$/)) {
-      newErrors.cvv = "CVV must be 3 digits";
+      newErrors.cvv = strings.cvvError;
     }
     if (data.cardName.trim().length < 2) {
-      newErrors.cardName = "Cardholder name is required";
+      newErrors.cardName = strings.cardNameError;
     }
     return newErrors;
   }, []);
-
-  const validateAll = useCallback((): Errors => {
-    return validate(formData);
-  }, [validate, formData]);
 
   const handleChange = useCallback(
     (field: keyof FormData, value: string) => {
@@ -80,7 +77,6 @@ export function useCheckoutForm() {
     handleChange,
     handleBlur,
     submit,
-    validateAll,
     reset,
   };
 }

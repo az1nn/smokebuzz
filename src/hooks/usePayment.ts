@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import strings from "../strings";
 
 export function usePayment() {
   const [loading, setLoading] = useState(false);
@@ -13,7 +14,7 @@ export function usePayment() {
         if (Math.random() > 0.1) {
           return { success: true };
         } else {
-          throw new Error("Payment declined");
+          throw new Error(strings.paymentDeclined);
         }
       } catch (e) {
         setError(e as Error);

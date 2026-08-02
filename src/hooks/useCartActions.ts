@@ -26,14 +26,9 @@ export function useCartActions() {
     clearCart();
   }, [clearCart]);
 
-  const handleCheckout = useCallback(() => {
-    // Navigation handled by App.tsx via callbacks
-  }, []);
-
   return {
     updateQuantity: handleUpdateQuantity,
     removeItem: handleRemoveItem,
     clearCart: handleClearCart,
-    navigateToCheckout: handleCheckout,
   };
 }

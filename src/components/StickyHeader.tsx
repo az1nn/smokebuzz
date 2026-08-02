@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, Image, Platform, Pressable, useWindowDimensions, Linking } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import BrassButton from "./BrassButton";
 
 function NavLink({
@@ -37,6 +38,7 @@ export default function StickyHeader({
   const [menuOpen, setMenuOpen] = useState(false);
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
 
@@ -60,7 +62,7 @@ export default function StickyHeader({
     <View
       className="bg-noir/86 border-b border-line px-7"
       style={{
-        paddingTop: 14,
+        paddingTop: 14 + insets.top,
         paddingBottom: 14,
         ...(Platform.OS === "web" ? {
           backdropFilter: "blur(8px)",
@@ -105,7 +107,7 @@ export default function StickyHeader({
       {menuOpen && width <= 900 && (
         <View
           className="border-b border-line pt-6 pb-6 px-0"
-          style={Platform.OS === "web" ? { background: "rgba(12,10,8,0.98)" } : { backgroundColor: "#0c0a08" }}
+          style={(Platform.OS === "web" ? { background: "rgba(12,10,8,0.98)" } : { backgroundColor: "#0c0a08" }) as any}
         >
           <View className="gap-5">
             {navLinks.map((link) => (

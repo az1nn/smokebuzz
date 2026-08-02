@@ -2,6 +2,10 @@ import React from "react";
 import { render } from "@testing-library/react-native";
 import App from "../App";
 
+jest.mock("react-native-safe-area-context", () =>
+  require("react-native-safe-area-context/jest/mock").default
+);
+
 describe("App", () => {
   it("renders the home screen", async () => {
     const { findAllByText } = render(<App />);

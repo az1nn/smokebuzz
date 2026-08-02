@@ -2,6 +2,7 @@ import "./global.css";
 import React, { useState, useCallback } from "react";
 import { View, Text, Pressable } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
 import { CartProvider, useCart } from "./src/context/CartContext";
 import HomeScreen from "./src/screens/HomeScreen";
 import ProductsScreen from "./src/screens/ProductsScreen";
@@ -24,9 +25,13 @@ function TabBar({
     { key: "products", label: "Produtos" },
     { key: "cart", label: "Carrinho" },
   ];
+  const insets = useSafeAreaInsets();
 
   return (
-    <View className="flex-row bg-espresso border-t border-line">
+    <View
+      className="flex-row bg-espresso border-t border-line"
+      style={{ paddingBottom: insets.bottom + 10 }}
+    >
       {tabs.map(({ key, label }) => (
         <Pressable
           key={key}
@@ -83,9 +88,7 @@ function AppInner() {
           scrollSignal={scrollSignal}
         />
       )}
-      {screen === "products" && (
-        <ProductsScreen onNavigateCart={() => setScreen("cart")} />
-      )}
+      {screen === "products" && <ProductsScreen />}
       {screen === "cart" && (
         <CartScreen onCheckout={() => setScreen("checkout")} />
       )}
@@ -106,8 +109,10 @@ function AppInner() {
 
 export default function App() {
   return (
-    <CartProvider>
-      <AppInner />
-    </CartProvider>
+    <SafeAreaProvider>
+      <CartProvider>
+        <AppInner />
+      </CartProvider>
+    </SafeAreaProvider>
   );
 }
