@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { ScrollView, View, Text, Image, Animated, Platform, Linking, Pressable, useWindowDimensions } from "react-native";
-import Svg, { Circle } from "react-native-svg";
+import Svg, { Circle, Defs, RadialGradient, Stop } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import RopeDivider from "../components/RopeDivider";
 import SectionHeading from "../components/SectionHeading";
@@ -8,9 +8,12 @@ import BrassButton from "../components/BrassButton";
 import CategoryCard from "../components/CategoryCard";
 import Container from "../components/Container";
 import ProductCard from "../components/ProductCard";
+import ProductCardSkeleton from "../components/ProductCardSkeleton";
+import { Reveal } from "../components/Reveal";
 import { useProducts } from "../hooks/useProducts";
 import { useAddToCart } from "../hooks/useAddToCart";
-import { useBreakpoints } from "../hooks/useBreakpoints";
+import { useBreakpoints, prodCols, catCols, difCols } from "../hooks/useBreakpoints";
+import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import { categorias, renderIcon } from "../data/categories";
 import { productAlt } from "../data/products";
 
@@ -32,24 +35,32 @@ const diferenciais = [
   },
 ];
 
+const HEADER_HEIGHT = 64;
+
 export default function HomeScreen({
   onNavigateProducts,
   scrollToSection,
   scrollSignal,
+  onScrollState,
 }: {
   onNavigateProducts: () => void;
   scrollToSection?: string | null;
   scrollSignal?: number;
+  onScrollState?: (s: { scrolled: boolean; activeSection: string | null }) => void;
 }) {
   const floatAnim = useRef(new Animated.Value(0)).current;
   const wisp1Anim = useRef(new Animated.Value(0)).current;
   const wisp2Anim = useRef(new Animated.Value(0.5)).current;
   const wisp3Anim = useRef(new Animated.Value(0.5)).current;
-  const [reducedMotion, setReducedMotion] = useState(false);
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const mouseX = useRef(new Animated.Value(0)).current;
+  const mouseY = useRef(new Animated.Value(0)).current;
+  const reducedMotion = usePrefersReducedMotion();
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const scrollRef = useRef<ScrollView>(null);
   const sectionY = useRef<Record<string, number>>({});
-  const { products } = useProducts();
+  const lastReportRef = useRef(0);
+  const { products, loading } = useProducts();
   const { addToCart } = useAddToCart();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -66,6 +77,24 @@ export default function HomeScreen({
     const y = event.nativeEvent.layout.y;
     sectionY.current[section] = y;
   }, []);
+
+  const handleScrollState = useCallback(
+    (offsetY: number) => {
+      const now = Date.now();
+      if (now - lastReportRef.current < 100) return;
+      lastReportRef.current = now;
+      const scrolled = offsetY > 8;
+      const threshold = offsetY + HEADER_HEIGHT;
+      let activeSection: string | null = null;
+      for (const key of Object.keys(sectionY.current)) {
+        if (sectionY.current[key] <= threshold) {
+          activeSection = key;
+        }
+      }
+      onScrollState?.({ scrolled, activeSection });
+    },
+    [onScrollState]
+  );
 
   useEffect(() => {
     if (scrollToSection) {
@@ -128,50 +157,90 @@ export default function HomeScreen({
   }, [floatAnim, wisp1Anim, wisp2Anim, wisp3Anim, reducedMotion]);
 
   useEffect(() => {
-    if (Platform.OS !== "web") return;
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
+    if (Platform.OS !== "web" || reducedMotion) return;
+    let raf = 0;
+    const onMouseMove = (e: MouseEvent) => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        mouseX.setValue((e.clientX / window.innerWidth) * 2 - 1);
+        mouseY.setValue((e.clientY / window.innerHeight) * 2 - 1);
+      });
+    };
+    window.addEventListener("mousemove", onMouseMove);
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      cancelAnimationFrame(raf);
+    };
+  }, [mouseX, mouseY, reducedMotion]);
 
   const wispInterpolate = (anim: Animated.Value) => ({
     opacity: anim.interpolate({
       inputRange: [0, 0.5, 1],
       outputRange: [0.35, 0.55, 0],
     }),
-    transform: [
-      {
-        translateX: anim.interpolate({
-          inputRange: [0, 0.5, 1],
-          outputRange: [0, 20, -10],
-        }),
-      },
-      {
-        translateY: anim.interpolate({
-          inputRange: [0, 0.5, 1],
-          outputRange: [0, -60, -140],
-        }),
-      },
-      {
-        scale: anim.interpolate({
-          inputRange: [0, 0.5, 1],
-          outputRange: [1, 1.15, 0.9],
-        }),
-      },
-    ],
+    translateX: anim.interpolate({
+      inputRange: [0, 0.5, 1],
+      outputRange: [0, 20, -10],
+    }),
+    translateY: anim.interpolate({
+      inputRange: [0, 0.5, 1],
+      outputRange: [0, -60, -140],
+    }),
+    scale: anim.interpolate({
+      inputRange: [0, 0.5, 1],
+      outputRange: [1, 1.15, 0.9],
+    }),
   });
 
+  const wispStyle = (anim: Animated.Value, mag: number) => {
+    if (reducedMotion) return {};
+    const base = wispInterpolate(anim);
+    return {
+      opacity: base.opacity,
+      transform: [
+        {
+          translateX: Animated.add(
+            base.translateX,
+            mouseX.interpolate({ inputRange: [-1, 1], outputRange: [-mag, mag] })
+          ),
+        },
+        {
+          translateY: Animated.add(
+            base.translateY,
+            mouseY.interpolate({ inputRange: [-1, 1], outputRange: [-mag, mag] })
+          ),
+        },
+        { scale: base.scale },
+      ],
+    };
+  };
+
   const sectionPad = isMobile ? "py-[72px]" : "py-[104px]";
+  const catCount = catCols(isDesktop, isMobile);
+  const catWidth =
+    catCount === 3 ? "w-[calc(33.333%-16px)]" : catCount === 2 ? "w-[calc(50%-12px)]" : "w-full";
   const h1Size = Math.min(Math.max(width * 0.06, 41.6), 73.6);
   const badgeSize = Math.min(360, width * 0.8);
-  const wisp1Style = wispInterpolate(wisp1Anim);
-  const wisp2Style = wispInterpolate(wisp2Anim);
-  const wisp3Style = wispInterpolate(wisp3Anim);
+  const wisp1Style = wispStyle(wisp1Anim, 10);
+  const wisp2Style = wispStyle(wisp2Anim, 10);
+  const wisp3Style = wispStyle(wisp3Anim, 10);
+  const badgeTranslateY = reducedMotion
+    ? []
+    : [{ translateY: Animated.add(floatAnim, Animated.multiply(scrollY, 0.15)) }];
 
   return (
-    <ScrollView ref={scrollRef} className="flex-1 bg-noir">
+    <ScrollView
+      ref={scrollRef}
+      className="flex-1 bg-noir"
+      onScroll={Animated.event(
+        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+        {
+          useNativeDriver: Platform.OS !== "web",
+          listener: (e: any) => handleScrollState(e.nativeEvent.contentOffset.y),
+        }
+      )}
+      scrollEventThrottle={16}
+    >
       {/* HERO */}
       <View
         className="min-h-[92vh] items-center justify-center overflow-hidden"
@@ -191,19 +260,37 @@ export default function HomeScreen({
         />
 
         {/* Smoke wisps — HTML positions */}
-        <Animated.View pointerEvents="none" style={[{ position: "absolute", top: "8%", left: "6%", width: 260, height: 260 }, wisp1Style]}>
+        <Animated.View pointerEvents="none" importantForAccessibility="no-hide-descendants" aria-hidden={true} style={[{ position: "absolute", top: "8%", left: "6%", width: 260, height: 260 }, wisp1Style]}>
           <Svg width="100%" height="100%" viewBox="0 0 200 200">
-            <Circle cx="100" cy="100" r="70" fill="#f2ead6" />
+            <Defs>
+              <RadialGradient id="wispGrad1" cx="50%" cy="50%" rx="50%" ry="50%">
+                <Stop offset="0%" stopColor="#f2ead6" stopOpacity="0.4" />
+                <Stop offset="100%" stopColor="#f2ead6" stopOpacity="0" />
+              </RadialGradient>
+            </Defs>
+            <Circle cx="100" cy="100" r="70" fill="url(#wispGrad1)" />
           </Svg>
         </Animated.View>
-        <Animated.View pointerEvents="none" style={[{ position: "absolute", top: "55%", right: "8%", width: 180, height: 180 }, wisp2Style]}>
+        <Animated.View pointerEvents="none" importantForAccessibility="no-hide-descendants" aria-hidden={true} style={[{ position: "absolute", top: "55%", right: "8%", width: 180, height: 180 }, wisp2Style]}>
           <Svg width="100%" height="100%" viewBox="0 0 200 200">
-            <Circle cx="100" cy="100" r="60" fill="#c9a24b" />
+            <Defs>
+              <RadialGradient id="wispGrad2" cx="50%" cy="50%" rx="50%" ry="50%">
+                <Stop offset="0%" stopColor="#c9a24b" stopOpacity="0.4" />
+                <Stop offset="100%" stopColor="#c9a24b" stopOpacity="0" />
+              </RadialGradient>
+            </Defs>
+            <Circle cx="100" cy="100" r="60" fill="url(#wispGrad2)" />
           </Svg>
         </Animated.View>
-        <Animated.View pointerEvents="none" style={[{ position: "absolute", top: "20%", right: "22%", width: 120, height: 120 }, wisp3Style]}>
+        <Animated.View pointerEvents="none" importantForAccessibility="no-hide-descendants" aria-hidden={true} style={[{ position: "absolute", top: "20%", right: "22%", width: 120, height: 120 }, wisp3Style]}>
           <Svg width="100%" height="100%" viewBox="0 0 200 200">
-            <Circle cx="100" cy="100" r="50" fill="#d9622b" />
+            <Defs>
+              <RadialGradient id="wispGrad3" cx="50%" cy="50%" rx="50%" ry="50%">
+                <Stop offset="0%" stopColor="#d9622b" stopOpacity="0.4" />
+                <Stop offset="100%" stopColor="#d9622b" stopOpacity="0" />
+              </RadialGradient>
+            </Defs>
+            <Circle cx="100" cy="100" r="50" fill="url(#wispGrad3)" />
           </Svg>
         </Animated.View>
         <Container className={isTablet ? "items-center flex-col-reverse" : "flex-row items-center gap-10"}>
@@ -238,7 +325,7 @@ export default function HomeScreen({
               style={[
                 {
                   width: badgeSize,
-                  transform: [{ translateY: floatAnim }],
+                  transform: badgeTranslateY,
                 },
                 Platform.OS === "web"
                   ? ({ filter: "drop-shadow(0 25px 45px rgba(0,0,0,0.55))" } as any)
@@ -260,200 +347,214 @@ export default function HomeScreen({
 
       {/* SOBRE */}
       <View className={`bg-espresso ${sectionPad}`} onLayout={(e) => onSectionLayout("sobre", e)}>
-        <Container className="flex-row gap-[60px] items-center flex-wrap">
-          <Image
-            source={require("../../assets/logosmokebuzz-hero.png")}
-            className="w-full rounded-[6px] border border-line"
-            style={{ maxWidth: Math.min(420, width * 0.38) }}
-          />
-          <View className="flex-1 min-w-[250px]">
-            <SectionHeading
-              eyebrow="Nossa história"
-              title="Uma tabacaria de bairro, com curadoria de verdade"
-              description="A SmokeBuzz nasceu para ser aquele lugar de confiança: um balcão onde você encontra do charuto ao isqueiro certo, e alguém que entende do assunto para te ajudar a escolher. Sem pressa, sem enrolação — só o que há de bom para quem gosta de fumar bem."
+        <Reveal>
+          <Container className="flex-row gap-[60px] items-center flex-wrap">
+            <Image
+              source={require("../../assets/logosmokebuzz-hero.png")}
+              className="w-full rounded-[6px] border border-line"
+              style={{ maxWidth: Math.min(420, width * 0.38) }}
             />
-            <View className="flex-row gap-[42px] mt-9 flex-wrap">
-              <View className="items-center">
-                <Text className="text-brass-light font-rye text-[30.4px]">2026</Text>
-                <Text className="text-cream-dim font-jost text-[13.12px] uppercase tracking-[0.5px]">
-                  Ano de fundação
-                </Text>
-              </View>
-              <View className="items-center">
-                <Text className="text-brass-light font-rye text-[30.4px]">6+</Text>
-                <Text className="text-cream-dim font-jost text-[13.12px] uppercase tracking-[0.5px]">
-                  Categorias
-                </Text>
-              </View>
-              <View className="items-center">
-                <Text className="text-brass-light font-rye text-[30.4px]">100%</Text>
-                <Text className="text-cream-dim font-jost text-[13.12px] uppercase tracking-[0.5px]">
-                  Atendimento presencial
-                </Text>
+            <View className="flex-1 min-w-[250px]">
+              <SectionHeading
+                eyebrow="Nossa história"
+                title="Uma tabacaria de bairro, com curadoria de verdade"
+                description="A SmokeBuzz nasceu para ser aquele lugar de confiança: um balcão onde você encontra do charuto ao isqueiro certo, e alguém que entende do assunto para te ajudar a escolher. Sem pressa, sem enrolação — só o que há de bom para quem gosta de fumar bem."
+              />
+              <View className="flex-row gap-[42px] mt-9 flex-wrap">
+                <View className="items-center">
+                  <Text className="text-brass-light font-rye text-[30.4px]">2026</Text>
+                  <Text className="text-cream-dim font-jost text-[13.12px] uppercase tracking-[0.5px]">
+                    Ano de fundação
+                  </Text>
+                </View>
+                <View className="items-center">
+                  <Text className="text-brass-light font-rye text-[30.4px]">6+</Text>
+                  <Text className="text-cream-dim font-jost text-[13.12px] uppercase tracking-[0.5px]">
+                    Categorias
+                  </Text>
+                </View>
+                <View className="items-center">
+                  <Text className="text-brass-light font-rye text-[30.4px]">100%</Text>
+                  <Text className="text-cream-dim font-jost text-[13.12px] uppercase tracking-[0.5px]">
+                    Atendimento presencial
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
-        </Container>
+          </Container>
+        </Reveal>
       </View>
 
       <RopeDivider />
 
       {/* DESTAQUES */}
       <View className={`bg-espresso ${sectionPad}`} onLayout={(e) => onSectionLayout("destaques", e)}>
-        <Container>
-          <SectionHeading
-            eyebrow="Direto do estoque"
-            title="Destaques da semana"
-            description="Alguns dos itens mais pedidos no Direct — confirme disponibilidade antes de fechar o pedido."
-          />
-          <View className="flex-row flex-wrap" style={{ gap: 24 }}>
-            {products.slice(0, 4).map((item) => (
-              <View key={item.id} className={isDesktop ? "w-[calc(25%-18px)]" : "w-[calc(50%-12px)]"}>
-                <ProductCard product={item} altText={productAlt[item.id]} onAdd={() => addToCart(item)} />
-              </View>
-            ))}
-          </View>
-        </Container>
+        <Reveal>
+          <Container>
+            <SectionHeading
+              eyebrow="Direto do estoque"
+              title="Destaques da semana"
+              description="Alguns dos itens mais pedidos no Direct — confirme disponibilidade antes de fechar o pedido."
+            />
+            <View className="flex-row flex-wrap" style={{ gap: 24 }}>
+              {loading
+                ? Array.from({ length: prodCols(isDesktop) }).map((_, i) => (
+                    <View key={i} className={isDesktop ? "w-[calc(25%-18px)]" : "w-[calc(50%-12px)]"}>
+                      <ProductCardSkeleton />
+                    </View>
+                  ))
+                : products.slice(0, 4).map((item) => (
+                    <View key={item.id} className={isDesktop ? "w-[calc(25%-18px)]" : "w-[calc(50%-12px)]"}>
+                      <ProductCard product={item} altText={productAlt[item.id]} onAdd={() => addToCart(item)} />
+                    </View>
+                  ))}
+            </View>
+          </Container>
+        </Reveal>
       </View>
 
       <RopeDivider thin />
 
       {/* CATEGORIAS */}
       <View className={sectionPad} onLayout={(e) => onSectionLayout("categorias", e)}>
-        <Container>
-          <SectionHeading
-            eyebrow="O que você encontra aqui"
-            title="Categorias"
-            description="Uma seleção pensada para todo tipo de fumante — do iniciante ao mais exigente."
-          />
-          <View className="flex-row flex-wrap" style={{ gap: 24 }}>
-            {categorias.map((cat) => (
-              <View
-                key={cat.title}
-                className={
-                  isDesktop ? "w-[calc(33.333%-16px)]"
-                    : isMobile ? "w-full"
-                    : "w-[calc(50%-12px)]"
-                }
-              >
-                <CategoryCard
-                  icon={
-                    <View className="w-11 h-11 mb-5 items-center justify-center">
-                      {renderIcon(cat.title)}
-                    </View>
-                  }
-                  title={cat.title}
-                  description={cat.description}
-                />
-              </View>
-            ))}
-          </View>
-        </Container>
+        <Reveal>
+          <Container>
+            <SectionHeading
+              eyebrow="O que você encontra aqui"
+              title="Categorias"
+              description="Uma seleção pensada para todo tipo de fumante — do iniciante ao mais exigente."
+            />
+            <View className="flex-row flex-wrap" style={{ gap: 24 }}>
+              {categorias.map((cat) => (
+                <View
+                  key={cat.title}
+                  className={catWidth}
+                >
+                  <CategoryCard
+                    icon={
+                      <View className="w-11 h-11 mb-5 items-center justify-center">
+                        {renderIcon(cat.title)}
+                      </View>
+                    }
+                    title={cat.title}
+                    description={cat.description}
+                  />
+                </View>
+              ))}
+            </View>
+          </Container>
+        </Reveal>
       </View>
 
       <RopeDivider thin />
 
       {/* DIFERENCIAIS */}
       <View className={`bg-espresso ${sectionPad}`} onLayout={(e) => onSectionLayout("diferenciais", e)}>
-        <Container>
-          <SectionHeading
-            eyebrow="Por que a SmokeBuzz"
-            title="O que nos diferencia"
-          />
-          <View className={`gap-10 ${isTablet ? "" : "flex-row"}`}>
-            {diferenciais.map((item, i) => (
-              <View key={i} className="flex-1">
-                <Text className="text-ember font-rye text-[17.6px]">
-                  {item.label}
-                </Text>
-                <Text className="text-brass-light font-rye text-[20.8px] mt-[10px] mb-3">
-                  {item.title}
-                </Text>
-                <Text className="text-cream-dim font-cormorant text-[17.6px] leading-[1.5]">
-                  {item.desc}
-                </Text>
-              </View>
-            ))}
-          </View>
-        </Container>
+        <Reveal>
+          <Container>
+            <SectionHeading
+              eyebrow="Por que a SmokeBuzz"
+              title="O que nos diferencia"
+            />
+            <View className={`gap-10 ${difCols(isDesktop) === 3 ? "flex-row" : ""}`}>
+              {diferenciais.map((item, i) => (
+                <Reveal key={i} delay={i * 80} style={{ flex: 1 }}>
+                  <Text className="text-ember font-rye text-[17.6px]">
+                    {item.label}
+                  </Text>
+                  <Text className="text-brass-light font-rye text-[20.8px] mt-[10px] mb-3">
+                    {item.title}
+                  </Text>
+                  <Text className="text-cream-dim font-cormorant text-[17.6px] leading-[1.5]">
+                    {item.desc}
+                  </Text>
+                </Reveal>
+              ))}
+            </View>
+          </Container>
+        </Reveal>
       </View>
 
       <RopeDivider />
 
       {/* LOCALIZAÇÃO */}
       <View className={sectionPad} onLayout={(e) => onSectionLayout("localizacao", e)}>
-        <Container className="flex-row gap-[50px] flex-wrap items-start">
-          <View className="flex-1 min-w-[280px]">
-            <View style={{ marginBottom: 30 }}>
-              <SectionHeading
-                eyebrow="Onde entregamos"
-                title="Área de atendimento"
-              />
-            </View>
-            <View className="mb-[30px]">
-              <Text className="text-brass-light font-rye text-[16.8px] mb-[10px] tracking-[0.4px]">
-                Cobertura
-              </Text>
-              <Text className="text-cream-dim font-cormorant text-[18.4px] leading-[1.6]">
-                Atendemos toda a cidade do Rio de Janeiro.
-                {"\n"}Sem loja física — pedidos feitos direto pelo Instagram.
-              </Text>
-            </View>
-            <View className="mb-[30px]">
-              <Text className="text-brass-light font-rye text-[16.8px] mb-[10px] tracking-[0.4px]">
-                Horário de atendimento
-              </Text>
-              <Text className="text-cream-dim font-cormorant text-[18.4px] leading-[1.6]">
-                Segunda a sábado: 10h às 20h
-                {"\n"}Domingo: 12h às 18h
-                {"\n"}
-                <Text className="text-cream-dim font-cormorant text-[15.2px] italic">
-                  (ajuste para o seu horário real)
+        <Reveal>
+          <Container className="flex-row gap-[50px] flex-wrap items-start">
+            <View className="flex-1 min-w-[280px]">
+              <View style={{ marginBottom: 30 }}>
+                <SectionHeading
+                  eyebrow="Onde entregamos"
+                  title="Área de atendimento"
+                />
+              </View>
+              <View className="mb-[30px]">
+                <Text className="text-brass-light font-rye text-[16.8px] mb-[10px] tracking-[0.4px]">
+                  Cobertura
                 </Text>
+                <Text className="text-cream-dim font-cormorant text-[18.4px] leading-[1.6]">
+                  Atendemos toda a cidade do Rio de Janeiro.
+                  {"\n"}Sem loja física — pedidos feitos direto pelo Instagram.
+                </Text>
+              </View>
+              <View className="mb-[30px]">
+                <Text className="text-brass-light font-rye text-[16.8px] mb-[10px] tracking-[0.4px]">
+                  Horário de atendimento
+                </Text>
+                <Text className="text-cream-dim font-cormorant text-[18.4px] leading-[1.6]">
+                  Segunda a sábado: 10h às 20h
+                  {"\n"}Domingo: 12h às 18h
+                  {"\n"}
+                  <Text className="text-cream-dim font-cormorant text-[15.2px] italic">
+                    (ajuste para o seu horário real)
+                  </Text>
+                </Text>
+              </View>
+              <View className="mb-[30px]">
+                <Text className="text-brass-light font-rye text-[16.8px] mb-[10px] tracking-[0.4px]">
+                  Contato
+                </Text>
+                <Text className="text-cream-dim font-cormorant text-[18.4px] leading-[1.6]">
+                  Instagram: @smokebuzztabacaria
+                  {"\n"}E-mail: contato@smokebuzz.com.br
+                </Text>
+              </View>
+            </View>
+            <View className="flex-1 min-w-[280px] border border-line rounded-lg bg-espresso-2 items-center justify-center text-center p-[30px]" style={{ aspectRatio: 4/3 }}>
+              <Text className="text-cream-dim font-cormorant text-[16.8px] text-center">
+                Toda a cidade do Rio de Janeiro
+              </Text>
+              <Text className="text-cream-dim font-cormorant text-[15.2px] italic text-center mt-2">
+                Confirme a área e o prazo de entrega do seu bairro direto no Direct
               </Text>
             </View>
-            <View className="mb-[30px]">
-              <Text className="text-brass-light font-rye text-[16.8px] mb-[10px] tracking-[0.4px]">
-                Contato
-              </Text>
-              <Text className="text-cream-dim font-cormorant text-[18.4px] leading-[1.6]">
-                Instagram: @smokebuzztabacaria
-                {"\n"}E-mail: contato@smokebuzz.com.br
-              </Text>
-            </View>
-          </View>
-          <View className="flex-1 min-w-[280px] border border-line rounded-lg bg-espresso-2 items-center justify-center text-center p-[30px]" style={{ aspectRatio: 4/3 }}>
-            <Text className="text-cream-dim font-cormorant text-[16.8px] text-center">
-              Toda a cidade do Rio de Janeiro
-            </Text>
-            <Text className="text-cream-dim font-cormorant text-[15.2px] italic text-center mt-2">
-              Confirme a área e o prazo de entrega do seu bairro direto no Direct
-            </Text>
-          </View>
-        </Container>
+          </Container>
+        </Reveal>
       </View>
 
       <RopeDivider />
 
       {/* CONTATO */}
       <View className={`bg-espresso ${sectionPad} items-center`} onLayout={(e) => onSectionLayout("contato", e)}>
-        <Container className="items-center">
-          <View className="max-w-[600px] mb-11 items-center">
-            <SectionHeading
-              eyebrow="Fale com a gente"
-              title="Pronto para o seu próximo charuto?"
-              description="Manda uma mensagem no Direct e a gente te ajuda a escolher — entregamos em toda a cidade do Rio de Janeiro."
-            />
-          </View>
-          <View className="flex-row gap-[18px] flex-wrap justify-center">
-            <BrassButton label="Chamar no Direct" onPress={() => Linking.openURL("https://instagram.com/smokebuzztabacaria")} />
-            <BrassButton
-              label="Enviar e-mail"
-              onPress={() => Linking.openURL("mailto:contato@smokebuzz.com.br")}
-              variant="ghost"
-            />
-          </View>
-        </Container>
+        <Reveal>
+          <Container className="items-center">
+            <View className="max-w-[600px] mb-11 items-center">
+              <SectionHeading
+                eyebrow="Fale com a gente"
+                title="Pronto para o seu próximo charuto?"
+                description="Manda uma mensagem no Direct e a gente te ajuda a escolher — entregamos em toda a cidade do Rio de Janeiro."
+              />
+            </View>
+            <View className="flex-row gap-[18px] flex-wrap justify-center">
+              <BrassButton label="Chamar no Direct" onPress={() => Linking.openURL("https://instagram.com/smokebuzztabacaria")} />
+              <BrassButton
+                label="Enviar e-mail"
+                onPress={() => Linking.openURL("mailto:contato@smokebuzz.com.br")}
+                variant="ghost"
+              />
+            </View>
+          </Container>
+        </Reveal>
       </View>
 
       {/* FOOTER */}

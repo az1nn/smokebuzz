@@ -17,6 +17,17 @@ ScreenTransition──► per-screen entrance transition (fade + rise)
 
 ---
 
+## Implementation status
+
+Implementation is complete (waves A–D). Deliberate deltas vs. the design reference:
+
+- **§2.6 Reveal:** native uses a mount-delay fallback (fires shortly after mount) instead of the onLayout + scrollY comparison; web uses `IntersectionObserver` as designed.
+- **§3.1 ProductCardSkeleton:** shimmer bar implemented at ~40% opacity (not the 8% written in §3.1) for visibility.
+- **§2.4 AppPressable:** adopted on the tab bar and hamburger; cart steppers/remove and desktop nav links keep plain `Pressable` but carry direct `accessibilityRole`/`accessibilityLabel` props (per §5).
+- **Verified:** `tsc` clean, 13/13 tests, `npm run build:web` OK; `npm run screenshots` not runnable (no puppeteer/chrome).
+
+---
+
 ## 1. Responsivity
 
 ### 1.1 `useBreakpoints` hook — single tier source of truth

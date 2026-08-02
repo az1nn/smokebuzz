@@ -11,6 +11,8 @@ function RopeLine({ thin }: { thin?: boolean }) {
       <View
         className={thin ? "h-[4px]" : "h-[10px]"}
         style={{ opacity: ROPE_OPACITY }}
+        importantForAccessibility="no-hide-descendants"
+        aria-hidden={true}
       >
         <View
           className="flex-1"
@@ -27,6 +29,8 @@ function RopeLine({ thin }: { thin?: boolean }) {
     <View
       className={thin ? "h-[4px]" : "h-[10px]"}
       style={{ opacity: ROPE_OPACITY, flexDirection: "row", overflow: "hidden" }}
+      importantForAccessibility="no-hide-descendants"
+      aria-hidden={true}
     >
       {Array.from({ length: count }).map((_, i) => (
         <View

@@ -35,68 +35,68 @@ Waves are independently reviewable — approve/disapprove per wave. Order matter
 
 ### Step 5 — Reduced-motion hook
 **File:** `src/hooks/usePrefersReducedMotion.ts` (new)
-- [ ] Per design §2.1 (web `matchMedia` + native `AccessibilityInfo`). Remove the inline `HomeScreen.tsx:128-135` block; use the hook.
+- [x] Per design §2.1 (web `matchMedia` + native `AccessibilityInfo`). Remove the inline `HomeScreen.tsx:128-135` block; use the hook.
 
 ### Step 6 — Animated card + press feedback
-- [ ] `ProductCard.tsx` — hover `translateY -6` + `border-color line→brass`, `Animated.timing` 250ms `Easing.bezier(0.22,1,0.36,1)` both directions.
-- [ ] `CategoryCard.tsx` — same eased hover treatment (replace instant `translateY` at `:13`).
-- [ ] `src/components/AppPressable.tsx` (new) — scale/dim feedback wrapper.
-- [ ] Adopt `AppPressable` in: tab bar (`App.tsx`), cart steppers + remove (`CartScreen`), hamburger + desktop nav links (`StickyHeader`), category cards, product add buttons.
+- [x] `ProductCard.tsx` — hover `translateY -6` + `border-color line→brass`, `Animated.timing` 250ms `Easing.bezier(0.22,1,0.36,1)` both directions.
+- [x] `CategoryCard.tsx` — same eased hover treatment (replace instant `translateY` at `:13`).
+- [x] `src/components/AppPressable.tsx` (new) — scale/dim feedback wrapper.
+- [x] Adopt `AppPressable` in: tab bar (`App.tsx`), cart steppers + remove (`CartScreen`), hamburger + desktop nav links (`StickyHeader`), category cards, product add buttons.
 
 ### Step 7 — Screen transitions
-- [ ] `src/components/ScreenTransition.tsx` (new) — fade 220ms + rise 280ms per §2.5; reduced-motion bypass.
-- [ ] `App.tsx` — wrap each screen render, keyed by `screen`.
+- [x] `src/components/ScreenTransition.tsx` (new) — fade 220ms + rise 280ms per §2.5; reduced-motion bypass.
+- [x] `App.tsx` — wrap each screen render, keyed by `screen`.
 
 ### Step 8 — Scroll reveals
-- [ ] `src/components/Reveal.tsx` (new) — web `IntersectionObserver` / native `onLayout`+`scrollY` per §2.6.
-- [ ] Wrap Home sections + stat row + dif grid (stagger 80ms). Non-home screens: mount-triggered reveal.
+- [x] `src/components/Reveal.tsx` (new) — web `IntersectionObserver` / native `onLayout`+`scrollY` per §2.6.
+- [x] Wrap Home sections + stat row + dif grid (stagger 80ms). Non-home screens: mount-triggered reveal.
 
 ### Step 9 — Header scroll state + active section
-- [ ] `HomeScreen` — report throttled scroll (`scrollEventThrottle:16`) + computed `activeSection` (from `sectionY`) up to `App`.
-- [ ] `StickyHeader` — scrolled state (bg `0.98`, shadow, 200ms), `activeSection` prop → brass-light + underline on matching desktop nav link.
+- [x] `HomeScreen` — report throttled scroll (`scrollEventThrottle:16`) + computed `activeSection` (from `sectionY`) up to `App`.
+- [x] `StickyHeader` — scrolled state (bg `0.98`, shadow, 200ms), `activeSection` prop → brass-light + underline on matching desktop nav link.
 
 ### Step 10 — Hero upgrades
-- [ ] Wisps: replace flat `<Circle fill>` with `react-native-svg` `<RadialGradient>` soft circles (design §2.8); keep drift timings 14/19/23s.
-- [ ] Badge scroll parallax: `scrollY * 0.15` translateY.
-- [ ] Web-only mouse parallax on wisps (±10px, rAF-throttled).
-- [ ] Cart badge bump: `Animated.spring` scale `1→1.25→1` on `itemCount` increase in `App.tsx` TabBar.
-- [ ] All hero loops gated on `usePrefersReducedMotion`.
+- [x] Wisps: replace flat `<Circle fill>` with `react-native-svg` `<RadialGradient>` soft circles (design §2.8); keep drift timings 14/19/23s.
+- [x] Badge scroll parallax: `scrollY * 0.15` translateY.
+- [x] Web-only mouse parallax on wisps (±10px, rAF-throttled).
+- [x] Cart badge bump: `Animated.spring` scale `1→1.25→1` on `itemCount` increase in `App.tsx` TabBar.
+- [x] All hero loops gated on `usePrefersReducedMotion`.
 
 ## Wave C — State & content
 
 ### Step 11 — Skeletons + loading/error
-- [ ] `src/components/ProductCardSkeleton.tsx` (new) — shimmer per §3.1.
-- [ ] `HomeScreen` "Destaques": render 4 skeletons during load.
-- [ ] `ProductsScreen`: skeleton grid during load; error panel with Rye title + Cormorant sub + `BrassButton ghost` "Tentar novamente" → `refetch()`.
+- [x] `src/components/ProductCardSkeleton.tsx` (new) — shimmer per §3.1.
+- [x] `HomeScreen` "Destaques": render 4 skeletons during load.
+- [x] `ProductsScreen`: skeleton grid during load; error panel with Rye title + Cormorant sub + `BrassButton ghost` "Tentar novamente" → `refetch()`.
 
 ### Step 12 — Cart empty state
-- [ ] Replace bare text (`CartScreen.tsx:17-21`) with ember motif + Rye heading + Cormorant sub + `BrassButton solid` "Ver produtos" → `onNavigateProducts` (new prop from `App`).
+- [x] Replace bare text (`CartScreen.tsx:17-21`) with ember motif + Rye heading + Cormorant sub + `BrassButton solid` "Ver produtos" → `onNavigateProducts` (new prop from `App`).
 
 ### Step 13 — Checkout total snapshot fix
-- [ ] `CheckoutScreen.tsx` — capture `orderTotal = total` before `usePayment`/`clearCart()`; success UI renders snapshot. Verified by test 5.1.1.
+- [x] `CheckoutScreen.tsx` — capture `orderTotal = total` before `usePayment`/`clearCart()`; success UI renders snapshot. Verified by test 5.1.1.
 
 ### Step 14 — L10n + PWA theming
-- [ ] Translate `useCheckoutForm` messages + `usePayment` error + "CVV" label per §3.5 (via `src/strings.ts`).
-- [ ] `public/manifest.json`, `postbuild.js`, `app.json` — theme/background colors → `#0c0a08` (§3.6).
+- [x] Translate `useCheckoutForm` messages + `usePayment` error + "CVV" label per §3.5 (via `src/strings.ts`).
+- [x] `public/manifest.json`, `postbuild.js`, `app.json` — theme/background colors → `#0c0a08` (§3.6).
 
 ## Wave D — Accessibility
 
 ### Step 15 — A11y pass
-- [ ] Roles/labels per design §5 table (tabs, hamburger, steppers, remove, add buttons).
-- [ ] Web focus-visible ring: brass `outline`, offset 2, on all interactive elements.
-- [ ] `aria-hidden`/`accessibilityElementsHidden` on decorative wisps + rope dividers.
-- [ ] Tab bar: `accessibilityState.selected` on active tab; cart tab announces count.
+- [x] Roles/labels per design §5 table (tabs, hamburger, steppers, remove, add buttons).
+- [x] Web focus-visible ring: brass `outline`, offset 2, on all interactive elements.
+- [x] `aria-hidden`/`accessibilityElementsHidden` on decorative wisps + rope dividers.
+- [x] Tab bar: `accessibilityState.selected` on active tab; cart tab announces count.
 
 ### Step 16 — Tests
-- [ ] Add tests per §5.1 (`tests/ui-polish.test.ts`): checkout snapshot total, pt-BR form messages, `Container` maxWidth.
-- [ ] Follow `node:test` output format (`▶` / `✔`) per AGENTS.md.
+- [x] Add tests per §5.1 (`tests/ui-polish.test.ts`): checkout snapshot total, pt-BR form messages, `Container` maxWidth.
+- [x] Follow `node:test` output format (`▶` / `✔`) per AGENTS.md.
 
 ## Verify
 
-- [ ] `npx tsc --noEmit` — zero errors.
-- [ ] `npm test` — all suites pass (existing 10 + new).
-- [ ] `npm run build:web` — export + postbuild OK.
-- [ ] `npm run screenshots` — visual diff at 1280/900/560 passes; hover, press, badge bump, reveals, reduced-motion verified manually (Playwright).
+- [x] `npx tsc --noEmit` — zero errors ✓
+- [x] `npm test` — all suites pass ✓ (13/13)
+- [x] `npm run build:web` — export + postbuild OK ✓
+- [ ] `npm run screenshots` — visual diff at 1280/900/560 passes; hover, press, badge bump, reveals, reduced-motion verified manually (Playwright). _(blocked: puppeteer/puppeteer-core not installed and no system Chrome — visual diff deferred)_
 
 ## Commit & push
 

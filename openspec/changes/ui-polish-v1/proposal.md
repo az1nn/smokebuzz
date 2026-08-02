@@ -50,3 +50,11 @@ Audit findings (from `src/` exploration + spec history):
 - No navigation library; keep the `App.tsx` state machine.
 - No design-token changes — palette/fonts stay identical to `tailwind.config.js`.
 - No pixel-parity re-baselining of already-landed sections (only where this polish requires it).
+
+## Status
+
+Implementation complete (waves A-D). All non-goals above were respected (no new dependencies, no backend/payment, no nav library, no token changes).
+
+Commits:
+- `____COMMIT1____` — feat: ui-polish-v1 — responsive rigor, motion system, state polish, accessibility
+- `____COMMIT2____` — docs: security keys & env vars policy + ignore .env

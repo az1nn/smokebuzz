@@ -28,10 +28,12 @@ export default function CheckoutScreen({
     error: paymentError,
   } = usePayment();
 
+  const [orderTotal, setOrderTotal] = React.useState(0);
   const [success, setSuccess] = React.useState(false);
 
   const handleSubmit = async () => {
     if (!submit()) return;
+    setOrderTotal(total);
     const result = await processPayment(total);
     if (result.success) {
       clearCart();
@@ -53,7 +55,7 @@ export default function CheckoutScreen({
           {strings.paymentConfirmedTitle}
         </Text>
         <Text className="text-cream-dim text-center mb-6">
-          {strings.paymentSuccessMessage(total)}
+          {strings.paymentSuccessMessage(orderTotal)}
         </Text>
         <BrassButton label={strings.continueShopping} onPress={handleDone} />
       </View>

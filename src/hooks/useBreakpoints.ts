@@ -19,6 +19,6 @@ export function useBreakpoints(): Breakpoints {
 }
 
 export const prodCols = (isDesktop: boolean): number => (isDesktop ? 4 : 2);
-export const catCols = (isDesktop: boolean, isTablet: boolean): number =>
-  isDesktop ? 3 : isTablet ? 2 : 1;
+export const catCols = (isDesktop: boolean, isMobile: boolean): number =>
+  isDesktop ? 3 : isMobile ? 1 : 2;
 export const difCols = (isDesktop: boolean): number => (isDesktop ? 3 : 1);

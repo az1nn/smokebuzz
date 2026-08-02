@@ -1,16 +1,20 @@
-import React, { useState } from "react";
-import { View, Text, Image, Platform, Pressable, useWindowDimensions, Linking } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, Text, Image, Platform, Pressable, Animated, useWindowDimensions, Linking } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { AppPressable } from "./AppPressable";
+import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import BrassButton from "./BrassButton";
 
 function NavLink({
   label,
   hovered,
+  active,
   onHover,
   onPress,
 }: {
   label: string;
   hovered: boolean;
+  active: boolean;
   onHover: (v: boolean) => void;
   onPress?: () => void;
 }) {
@@ -21,7 +25,11 @@ function NavLink({
     >
       <Text
         className={`text-[14.72px] font-jost tracking-[0.4px] transition-colors duration-200 ${
-          hovered ? "text-brass-light" : "text-cream-dim opacity-[0.85]"
+          active
+            ? "text-brass-light border-b border-brass"
+            : hovered
+            ? "text-brass-light"
+            : "text-cream-dim opacity-[0.85]"
         }`}
       >
         {label}
@@ -32,13 +40,31 @@ function NavLink({
 
 export default function StickyHeader({
   onNavPress,
+  scrolled,
+  activeSection,
 }: {
   onNavPress?: (section: string) => void;
+  scrolled?: boolean;
+  activeSection?: string | null;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const reduced = usePrefersReducedMotion();
+  const scrolledAnim = useRef(new Animated.Value(scrolled ? 1 : 0)).current;
+
+  useEffect(() => {
+    if (reduced) {
+      scrolledAnim.setValue(scrolled ? 1 : 0);
+      return;
+    }
+    Animated.timing(scrolledAnim, {
+      toValue: scrolled ? 1 : 0,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  }, [scrolled, reduced, scrolledAnim]);
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
 
@@ -58,20 +84,44 @@ export default function StickyHeader({
     { key: "contato", label: "Contato" },
   ];
 
+  const backgroundColor = scrolledAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["rgba(12,10,8,0.86)", "rgba(12,10,8,0.98)"],
+  });
+
   return (
-    <View
-      className="bg-noir/86 border-b border-line px-7"
+    <Animated.View
+      className="border-b border-line px-7"
       style={{
+        backgroundColor,
         paddingTop: 14 + insets.top,
         paddingBottom: 14,
-        ...(Platform.OS === "web" ? {
-          backdropFilter: "blur(8px)",
-          position: "sticky" as any,
-          top: 0,
-          zIndex: 50,
-        } : {}),
+        ...(Platform.OS === "web"
+          ? {
+              backdropFilter: "blur(8px)",
+              position: "sticky" as any,
+              top: 0,
+              zIndex: 50,
+            }
+          : { elevation: scrolled ? 12 : 0 }),
       } as any}
     >
+      {Platform.OS === "web" && (
+        <Animated.View
+          pointerEvents="none"
+          style={
+            {
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+              opacity: scrolledAnim,
+            } as any
+          }
+        />
+      )}
       <View className="max-w-[1180px] mx-auto flex-row items-center justify-between">
         <View className="flex-row gap-3 items-center">
           <Image
@@ -87,6 +137,7 @@ export default function StickyHeader({
                 key={link.key}
                 label={link.label}
                 hovered={hoveredLink === link.key}
+                active={activeSection === sectionMap[link.key]}
                 onHover={(v) => setHoveredLink(v ? link.key : null)}
                 onPress={() => onNavPress?.(sectionMap[link.key])}
               />
@@ -99,9 +150,15 @@ export default function StickyHeader({
           </View>
         )}
         {width <= 900 && (
-          <Pressable onPress={toggleMenu} className="p-2">
+          <AppPressable
+            onPress={toggleMenu}
+            className="p-2"
+            accessibilityRole="button"
+            accessibilityLabel={menuOpen ? "Fechar menu" : "Abrir menu"}
+            accessibilityState={{ expanded: menuOpen }}
+          >
             <Text className="text-cream text-[25.6px]">{menuOpen ? "✕" : "☰"}</Text>
-          </Pressable>
+          </AppPressable>
         )}
       </View>
       {menuOpen && width <= 900 && (
@@ -127,6 +184,6 @@ export default function StickyHeader({
           </View>
         </View>
       )}
-    </View>
+    </Animated.View>
   );
 }

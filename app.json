@@ -9,7 +9,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0f172a"
+      "backgroundColor": "#0c0a08"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -19,8 +19,8 @@
         "shortName": "smokebuzz",
         "startUrl": "/",
         "display": "standalone",
-        "backgroundColor": "#0f172a",
-        "themeColor": "#0f172a"
+        "backgroundColor": "#0c0a08",
+        "themeColor": "#0c0a08"
       }
     }
   }

@@ -1,15 +1,28 @@
-import React from "react";
 import { View, Text, FlatList, Pressable, Image } from "react-native";
+import Svg, { Path, Circle } from "react-native-svg";
 import { useCart } from "../context/CartContext";
 import { useCartActions } from "../hooks/useCartActions";
 import BrassButton from "../components/BrassButton";
 import Container from "../components/Container";
 import strings from "../strings";
 
+function CartEmptyMotif() {
+  return (
+    <Svg width={80} height={80} viewBox="0 0 80 80" fill="none">
+      <Circle cx="40" cy="40" r="34" stroke="#d9622b" strokeWidth="2" strokeDasharray="8 5" opacity="0.85" />
+      <Circle cx="40" cy="40" r="26" stroke="#d9622b" strokeWidth="1.5" strokeDasharray="4 4" opacity="0.5" />
+      <Path d="M40 14c8 8 8 18 0 26-8-8-8-18 0-26z" fill="#d9622b" opacity="0.85" />
+      <Path d="M40 24v14" stroke="#0c0a08" strokeWidth="1.5" />
+    </Svg>
+  );
+}
+
 export default function CartScreen({
   onCheckout,
+  onNavigateProducts,
 }: {
   onCheckout: () => void;
+  onNavigateProducts?: () => void;
 }) {
   const { items, total } = useCart();
   const { updateQuantity, removeItem } = useCartActions();
@@ -18,9 +31,14 @@ export default function CartScreen({
     return (
       <View className="flex-1 bg-noir items-center justify-center">
         <Container className="items-center">
-          <Text className="text-cream-dim text-lg">
-            {strings.cartEmpty}
+          <CartEmptyMotif />
+          <Text className="text-cream font-rye text-2xl mt-6 mb-2 text-center">
+            {strings.cartEmptyTitle}
           </Text>
+          <Text className="text-cream-dim font-cormorant italic text-center mb-6">
+            {strings.cartEmptySub}
+          </Text>
+          <BrassButton label={strings.viewProducts} onPress={() => onNavigateProducts?.()} />
         </Container>
       </View>
     );
@@ -29,7 +47,7 @@ export default function CartScreen({
   return (
     <View className="flex-1 bg-noir">
       <Container className="pt-12">
-        <Text className="text-brass-light font-rye text-3xl">Carrinho</Text>
+        <Text className="text-brass-light font-rye text-3xl">{strings.cartTitle}</Text>
       </Container>
       <Container>
         <FlatList
@@ -61,6 +79,8 @@ export default function CartScreen({
                     onPress={() =>
                       updateQuantity(item.product.id, item.quantity - 1)
                     }
+                    accessibilityRole="button"
+                    accessibilityLabel={strings.decreaseQuantity}
                     className="border border-brass rounded-lg w-8 h-8 items-center justify-center"
                   >
                     <Text className="text-brass font-bold">-</Text>
@@ -72,6 +92,8 @@ export default function CartScreen({
                     onPress={() =>
                       updateQuantity(item.product.id, item.quantity + 1)
                     }
+                    accessibilityRole="button"
+                    accessibilityLabel={strings.increaseQuantity}
                     className="border border-brass rounded-lg w-8 h-8 items-center justify-center"
                   >
                     <Text className="text-brass font-bold">+</Text>
@@ -80,6 +102,8 @@ export default function CartScreen({
               </View>
               <Pressable
                 onPress={() => removeItem(item.product.id)}
+                accessibilityRole="button"
+                accessibilityLabel={strings.removeItem(item.product.name)}
                 className="ml-2"
               >
                 <Text className="text-ember text-lg">✕</Text>
@@ -91,12 +115,12 @@ export default function CartScreen({
       <View className="border-t border-line">
         <Container className="py-4">
           <View className="flex-row justify-between mb-4">
-            <Text className="text-cream font-rye text-xl">Total</Text>
+            <Text className="text-cream font-rye text-xl">{strings.totalLabel}</Text>
             <Text className="text-brass font-rye text-xl">
               R$ {total.toFixed(2).replace('.', ',')}
             </Text>
           </View>
-          <BrassButton label="Finalizar Pedido" onPress={onCheckout} />
+          <BrassButton label={strings.cartCheckout} onPress={onCheckout} />
         </Container>
       </View>
     </View>
