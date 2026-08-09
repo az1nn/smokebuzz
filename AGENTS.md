@@ -1,139 +1,34 @@
-# Agent Workflow: OpenSpec SDD Loop
+# Repository Guidelines
 
-> This project uses the **OpenSpec Specification-Driven Development (SDD)** loop as its default development harness. Every change goes through three phases: **Propose** (define specs and tasks in `openspec/changes/`), **Apply** (implement exactly what is specified in `tasks.md`), and **Archive** (record and move completed specs to `openspec/archive/`).
+## Project Structure
 
-**ALWAYS commit and push after completing changes.** Do not wait to be asked.
+This Expo/React Native TypeScript app starts at `App.tsx`. Screens live in `src/screens/`, UI in `src/components/`, state in `src/context/`, workflows in `src/hooks/`, data in `src/data/`, and types in `src/types.ts`. Tests are in `tests/`, with stubs in `__mocks__/`. Assets belong in `assets/`; web support is in `public/`, `scripts/`, and `postbuild.js`. Specifications and documentation live in `openspec/changes/` and `docs/`.
 
-### Subagent-First Rule (Context Preservation)
+## Commands
 
-The main agent acts as the **architect/orchestrator** and MUST preserve its own context window. **ALWAYS delegate to subagents** — never do heavy work inline in the main context. This applies to:
+- `npm start` starts Expo; `npm run web`, `npm run android`, and `npm run ios` target platforms.
+- `npm test` runs Jest.
+- `npx tsc --noEmit` checks TypeScript.
+- `npm run build:web` exports the processed PWA to `dist/`.
 
-- **Reading/exploring** — Use the `explore` (or `general`) subagent to read files, search the codebase, and gather context. Do not read large files directly in the main context.
-- **Writing/updating code** — Delegate implementation edits to a `general` subagent with a detailed task description.
-- **Code review** — Always run the `code-review` subagent before every commit (never review inline).
-- **Verification** — Delegate running tests, `tsc`, and builds to a subagent; have it return only the pass/fail summary and relevant errors.
-- **Commit & push** — Delegate the git staging/commit/push steps to a subagent.
+## Clean Code and Architecture
 
-The main agent should only: plan, decide, dispatch subagents (in parallel when independent), and integrate their concise summaries. Keep raw file contents, test logs, and diffs inside subagents — return only what the architect needs to make the next decision.
+Use two-space indentation and existing patterns. Name components in `PascalCase`, hooks as `useCamelCase`, and variables/functions in `camelCase`. Keep screens focused on composition: presentation belongs in components, state in contexts, side effects in hooks, and contracts in types. Prefer small functions, explicit props, immutable state, and early returns. Remove dead code and fix root causes.
 
-### Required Workflow Order
+Reuse design-system components and NativeWind `className` styles; do not introduce `StyleSheet.create` or duplicate UI. Use Tailwind v3 syntax. Dependencies and build/config changes require approval. Future desktop I/O must cross `OpenBandNative` from `@bridge`, never frontend filesystem, Electron, or Tauri imports. Update `docs/ui-overhaul-v2-changes.md` for visual or core-component changes.
 
-Every change must follow this sequence — never skip or reorder:
+## Agent and OpenSpec Workflow
 
-1. **Spec** — Write `proposal.md`, `design.md`, `tasks.md` under `openspec/changes/<name>/`
-2. **Commit & push** — Commit the spec files before writing any code
-3. **Implement, test & code review** — Implement source changes per `tasks.md`, write/update tests, run full verification, pass `code-review` subagent
-4. **Update specs & docs** — Update spec files and any docs to reflect what was actually built
-5. **Commit & push** — Final commit with all implementation + test + spec updates
+The main agent delegates exploration, implementation, verification, review, and Git operations to subagents, retaining concise summaries. Code changes require exactly `proposal.md`, `design.md`, and `tasks.md` under `openspec/changes/<change-name>/`, followed by user approval. Commit and push the specification before implementation. Implement only approved tasks, update specs/docs, delegate verification and review, then push a separate implementation commit. Markdown-only context/documentation changes are exempt. Always commit and push completed work.
 
-Do NOT combine spec commits with implementation commits. Each phase must be independently reviewable.
+## Testing
 
----
+Write Jest `*.test.tsx` suites with `describe` and `it`, asserting observable behavior. Cover success, failure, and meaningful boundaries. Keep mocks in `__mocks__/`; never weaken assertions to pass CI. Before delivery, run tests, type checking, and the relevant build.
 
-## Phase 1: Plan
+## Security
 
-**Goal:** Understand what needs to change before writing code.
+Follow `docs/SEGURANCA_CHAVES_SECRETAS.md`. Never commit `.env` files or credentials, embed secrets in versioned files, log them, or use realistic example keys. `EXPO_PUBLIC_` values are exposed in web bundles; allow only public URLs and publishable keys. Keep service-role, JWT, database, payment, OAuth, and deploy secrets in backend/CI storage. Validate variables, redact logs, authorize server-side, require RLS for client-accessible tables, and rotate suspected exposures immediately.
 
-1. **Read relevant files** — Read all files mentioned in the task, plus any files they import
-2. **Trace the data flow** — Identify state, props, and side effects before modifying
-3. **Scope the change** — Answer:
-   - What is the smallest possible change?
-   - Which files must be modified?
-   - Will this change affect other screens?
-4. **Produce a plan** — List files and changes in order. Example:
-   ```
-   1. src/components/Button.tsx — add `danger` variant
-   2. app/(auth)/login.tsx — use new variant for delete action
-   3. Run `npx tsc --noEmit` to verify types
-   4. Run `npm run build` to verify build
-   ```
+## Commits and Pull Requests
 
-**Do NOT** skip straight to code. If uncertain about the approach, use the Task tool to explore first. Always define changes first by creating exactly three separate files under `openspec/changes/<change-name>/` and waiting for the user's explicit approval before implementing any source code edits:
-- `proposal.md`: Outlines the context, problem description, and high-level objectives.
-- `design.md`: Details the API signatures, visual layouts, flowcharts, state variables, and component mappings.
-- `tasks.md`: Provides a detailed, step-by-step checklist of edits and verification steps.
-
----
-
-## Phase 2: Act
-
-**Goal:** Implement the plan with minimal scope.
-
-### Constraints
-
-- **No new dependencies** unless explicitly approved. Check `package.json` first.
-- **Never modify build scripts** in `package.json` unless the user explicitly requests it.
-- **Desktop bridge rule:** Never use `require('fs')`, `ipcRenderer`, or Tauri APIs in `src/` frontend code. All native desktop I/O goes through `OpenBandNative` from `@bridge`.
-- **Follow existing patterns.** If the project uses `View` + `className`, do that. Don't introduce `StyleSheet.create`.
-- **Use the design system.** Import from `src/components/` whenever possible. Don't inline styles that exist as components.
-- **No comments in code.** The code should be self-documenting.
-- **Tailwind v3 syntax.** Use `@tailwind base/components/utilities` directives, NOT `@import "tailwindcss/..."` (that's v4).
-- **Don't modify config files** (`tailwind.config.js`, `metro.config.js`, `babel.config.js`, `tsconfig.json`) unless the task explicitly requires it.
-- **Keep changes documentation updated:** Always consult and update `docs/ui-overhaul-v2-changes.md` when modifying visual layouts, themes, stylesheets, or core components to ensure all UI overhaul features remain fully documented.
-- **No dead code.** Don't leave unused imports, variables, or files.
-- **Root cause, not suppression.** For bugs, fix the underlying issue. Don't add try/catch wrappers that silence errors.
-- **Test output format:** Every test must follow the node:test pattern — `▶ SuiteName` for describe blocks, `  ✔ test description (Xms)` for passing tests, and `✔ SuiteName (Xms)` at suite end. See legacy tests (`tests/presets.test.ts`, `tests/types.test.ts`) for reference.
-
----
-
-## Project Documentation Reference
-
-All docs are in the repo root or under `openspec/`. Consult these before modifying related areas.
-
-### Spec Archive (openspec/changes/)
-
-| Doc | Location | Covers |
-|-----|----------|--------|
-| **HTML Foundation** | `openspec/changes/html-foundation/` | PWA build pipeline, `expo export -p web`, `postbuild.js`, manifest, meta tags |
-| **E-commerce** | `openspec/changes/ecommerce/` | CartContext, product data, screen architecture, mock payment |
-| **HTML-to-RN Images** | `openspec/changes/html-to-rn-images/` | Base64 image extraction, custom hooks (useProducts, useAddToCart, useCartActions, useCheckoutForm, usePayment, useNavigation) |
-| **UI Overhaul v2** | `openspec/changes/ui-overhaul-v2/` | Full design system: colors, typography, components, screen layouts |
-
-### Design System (from UI Overhaul v2)
-
-**Colors** (defined in `tailwind.config.js`):
-| Tailwind Class | Hex | Usage |
-|---------------|-----|-------|
-| `noir` | `#0c0a08` | Primary background |
-| `espresso` | `#1e150e` | Section backgrounds, tab bar |
-| `espresso-2` | `#2b1d12` | Card gradients |
-| `cream` | `#f2ead6` | Primary text, headings |
-| `cream-dim` | `#cfc3a4` | Secondary/muted text |
-| `brass` | `#c9a24b` | Borders, button fills, accents |
-| `brass-light` | `#e6c878` | Titles, active tab, hover |
-| `ember` | `#d9622b` | Tertiary accent, cart badge, remove button |
-| `line` | `rgba(201,162,75,0.28)` | Borders, dividers, card outlines |
-
-**Typography** (Tailwind fontFamily keys: `font-rye`, `font-jost`, `font-cormorant`):
-- **Rye** — All headings (h1-h3), prices, branding
-- **Jost** — Body text, buttons, nav, eyebrow labels
-- **Cormorant Garamond** — Italic accents, lede paragraphs, quotes
-
-**Reusable Components** (`src/components/`):
-- `RopeDivider` — Diagonal repeating-line divider (normal `h-[10px]`, thin `h-[4px]`)
-- `SectionHeading` — Eyebrow + Rye title + optional description
-- `BrassButton` — Two variants: `solid` (brass fill, noir text) and `ghost` (brass border, cream text)
-
-### Screen Structure
-
-| Screen | File | Route | Tab |
-|--------|------|-------|-----|
-| Home | `src/screens/HomeScreen.tsx` | "home" | Home |
-| Products | `src/screens/ProductsScreen.tsx` | "products" | Produtos |
-| Cart | `src/screens/CartScreen.tsx` | "cart" | Carrinho |
-| Checkout | `src/screens/CheckoutScreen.tsx` | "checkout" | (hidden from tab bar) |
-
-### Data Layer
-
-- **Product type** (`src/types.ts`): `id`, `name`, `description`, `price`, `image: ImageSourcePropType | string`, `category`
-- **Products** (`src/data/products.ts`): 10 products (4 with real PNG images, 6 with emoji fallback)
-- **CartContext** (`src/context/CartContext.tsx`): useReducer-based cart with add/remove/update/clear, exposes `total` and `itemCount`
-- **Custom Hooks** (`src/hooks/`): useProducts, useAddToCart, useCartActions, useCheckoutForm, usePayment, useNavigation
-
-### Verification Scripts
-
-```bash
-npm test        # Jest (10 tests: CartContext + App rendering)
-npx tsc --noEmit  # TypeScript type check
-npm run build:web # Expo web export + postbuild → dist/
-```
+Use focused subjects matching history, such as `feat: add checkout validation` or `docs: clarify security rules`. Never combine specification and implementation commits. PRs should state intent and scope, link the OpenSpec change or issue, list verification, include UI screenshots, and note security, migration, or configuration impact.
