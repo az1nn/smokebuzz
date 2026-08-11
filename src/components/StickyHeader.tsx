@@ -122,7 +122,7 @@ export default function StickyHeader({
           }
         />
       )}
-      <View className="max-w-[1180px] mx-auto flex-row items-center justify-between">
+      <View className="max-w-[1180px] mx-auto flex-row items-center justify-between gap-4">
         <View className="flex-row gap-3 items-center">
           <Image
             source={require("../../assets/logosmokebuzz-transparent.png")}

@@ -32,3 +32,4 @@ Thumbs.db
 .netlify
 .firebase
 screenshots/
+storybook-static/
